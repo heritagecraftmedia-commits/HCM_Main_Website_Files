@@ -22,7 +22,7 @@ export const Navbar: React.FC = () => {
     { name: 'Community Radio', path: '/radio' },
     { name: 'Volunteer', path: '/volunteer' },
     { name: 'Resources', path: '/resources' },
-    { name: 'Apply to Join', path: '/join' },
+    { name: 'Apply to Join', path: '/apply' },
     { name: 'Members', path: '/members' },
     { name: 'Feedback', path: '/feedback' },
     { name: 'About', path: '/about' },
@@ -176,7 +176,7 @@ export const Navbar: React.FC = () => {
                     A community-led social enterprise dedicated to supporting local food producers and fostering community through radio.
                   </p>
                   <Link
-                    to="/join"
+                    to="/apply"
                     onClick={() => setIsOpen(false)}
                     className="inline-block px-6 py-3 bg-brand-olive text-white rounded-full font-bold text-sm"
                   >
