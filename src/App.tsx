@@ -31,6 +31,7 @@ import { ChangesDraft } from './pages/ChangesDraft';
 import { MakersDirectory } from './pages/MakersDirectory';
 import { SupportMakers } from './pages/SupportMakers';
 import { BecomeAMaker } from './pages/BecomeAMaker';
+import { Apply } from './pages/Apply';
 import { Notes } from './pages/Notes';
 import { JamGuide } from './pages/guides/JamGuide';
 import { ProjectGuide } from './pages/guides/ProjectGuide';
@@ -92,6 +93,7 @@ export default function App() {
                 <Route path="/makers" element={<PageWrapper><MakersDirectory /></PageWrapper>} />
                 <Route path="/support-the-makers" element={<PageWrapper><SupportMakers /></PageWrapper>} />
                 <Route path="/become-a-maker" element={<PageWrapper><BecomeAMaker /></PageWrapper>} />
+                <Route path="/apply" element={<PageWrapper><Apply /></PageWrapper>} />
                 <Route path="/notes" element={<ProtectedRoute requiredRole="founder"><PageWrapper><Notes /></PageWrapper></ProtectedRoute>} />
                 <Route path="/guides/:guideId" element={<PageWrapper><ProjectGuide /></PageWrapper>} />
                 <Route path="/draft" element={<PageWrapper><DraftSpace /></PageWrapper>} />
