@@ -36,6 +36,7 @@ import { JamGuide } from './pages/guides/JamGuide';
 import { ProjectGuide } from './pages/guides/ProjectGuide';
 import { DraftSpace } from './pages/DraftSpace';
 import WhatsOnAgent from './pages/WhatsOnAgent';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { AnimatePresence, motion } from 'motion/react';
 
 const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -71,7 +72,7 @@ export default function App() {
                 <Route path="/makers-hub" element={<PageWrapper><MakersHub /></PageWrapper>} />
                 <Route path="/cafe" element={<PageWrapper><Cafe /></PageWrapper>} />
                 <Route path="/volunteer" element={<PageWrapper><Volunteer /></PageWrapper>} />
-                <Route path="/members" element={<PageWrapper><Members /></PageWrapper>} />
+                <Route path="/members" element={<ProtectedRoute><PageWrapper><Members /></PageWrapper></ProtectedRoute>} />
                 <Route path="/feedback" element={<PageWrapper><Feedback /></PageWrapper>} />
                 <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
                 <Route path="/join" element={<PageWrapper><Join /></PageWrapper>} />
@@ -79,19 +80,19 @@ export default function App() {
                 <Route path="/whats-on" element={<PageWrapper><WhatsOn /></PageWrapper>} />
                 <Route path="/maker-stories" element={<PageWrapper><MakerStories /></PageWrapper>} />
                 <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
-                <Route path="/dashboard" element={<PageWrapper><Dashboard /></PageWrapper>} />
+                <Route path="/dashboard" element={<ProtectedRoute requiredRole="founder"><PageWrapper><Dashboard /></PageWrapper></ProtectedRoute>} />
                 <Route path="/claim/:id" element={<PageWrapper><ClaimListing /></PageWrapper>} />
                 <Route path="/submit-story" element={<PageWrapper><SubmitStory /></PageWrapper>} />
                 <Route path="/makers-shop" element={<PageWrapper><MakersShop /></PageWrapper>} />
                 <Route path="/privacy" element={<PageWrapper><Privacy /></PageWrapper>} />
                 <Route path="/terms" element={<PageWrapper><Terms /></PageWrapper>} />
-                <Route path="/command" element={<PageWrapper><CommandCenter /></PageWrapper>} />
+                <Route path="/command" element={<ProtectedRoute requiredRole="founder"><PageWrapper><CommandCenter /></PageWrapper></ProtectedRoute>} />
                 <Route path="/subscriptions" element={<Subscriptions />} />
                 <Route path="/changes" element={<ChangesDraft />} />
                 <Route path="/makers" element={<PageWrapper><MakersDirectory /></PageWrapper>} />
                 <Route path="/support-the-makers" element={<PageWrapper><SupportMakers /></PageWrapper>} />
                 <Route path="/become-a-maker" element={<PageWrapper><BecomeAMaker /></PageWrapper>} />
-                <Route path="/notes" element={<PageWrapper><Notes /></PageWrapper>} />
+                <Route path="/notes" element={<ProtectedRoute requiredRole="founder"><PageWrapper><Notes /></PageWrapper></ProtectedRoute>} />
                 <Route path="/guides/:guideId" element={<PageWrapper><ProjectGuide /></PageWrapper>} />
                 <Route path="/draft" element={<PageWrapper><DraftSpace /></PageWrapper>} />
                 <Route path="/whats-on-agent" element={<WhatsOnAgent />} />
