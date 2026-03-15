@@ -1,101 +1,197 @@
-import React, { useState } from 'react';
-import { MessageSquare, ThumbsUp, ThumbsDown, Send, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { MessageSquare, Send, CheckCircle2, Loader2, Quote } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { supabase } from '../lib/supabase';
+
+const FEEDBACK_TYPES = ['General', 'Food Directory', 'Radio', 'Events', 'Website'];
+
+interface PublicFeedback {
+  id: string;
+  name: string | null;
+  type: string;
+  message: string;
+  created_at: string;
+}
 
 export const Feedback: React.FC = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [type, setType] = useState('General');
+  const [message, setMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [publicFeedback, setPublicFeedback] = useState<PublicFeedback[]>([]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    supabase
+      .from('feedback')
+      .select('id, name, type, message, created_at')
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+      .limit(5)
+      .then(({ data }) => {
+        if (data) setPublicFeedback(data);
+      });
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+
+    const { error: sbError } = await supabase.from('feedback').insert([{
+      name: name || null,
+      email: email || null,
+      type,
+      message,
+    }]);
+
+    if (sbError) {
+      setError('Something went wrong — please try again.');
+      setSubmitting(false);
+      return;
+    }
+
     setSubmitted(true);
+    setSubmitting(false);
   };
 
+  const inputClass = 'w-full px-5 py-3 rounded-2xl border border-brand-olive/20 bg-brand-cream focus:outline-none focus:ring-2 focus:ring-brand-olive/30 text-brand-ink';
+
   return (
-    <div className="py-16 md:py-24 bg-brand-cream min-h-screen">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-7xl font-serif mb-6">Your <span className="italic text-brand-olive">Feedback</span></h1>
-          <p className="text-xl text-brand-ink/70 max-w-2xl mx-auto">
-            Help us grow. Whether it's a suggestion, a compliment, or a concern, we value your input on how we can better serve Farnham.
-          </p>
+    <div className="bg-brand-cream min-h-screen">
+
+      {/* Hero */}
+      <section className="py-20 md:py-24 bg-brand-olive text-brand-cream">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <h1 className="text-5xl md:text-7xl font-serif mb-6">Your <span className="italic">Feedback</span></h1>
+            <p className="text-xl opacity-80 max-w-2xl leading-relaxed">
+              Help us grow. Whether it's a suggestion, a compliment, or a concern — every message
+              is read by a real person and used to shape what we do.
+            </p>
+          </motion.div>
         </div>
+      </section>
 
-        <div className="bg-white rounded-[40px] p-8 md:p-16 shadow-sm border border-brand-olive/5">
-          <AnimatePresence mode="wait">
-            {!submitted ? (
-              <motion.form 
-                key="feedback-form"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                onSubmit={handleSubmit}
-                className="space-y-8"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold uppercase tracking-widest opacity-50">Name (Optional)</label>
-                    <input type="text" className="w-full p-4 rounded-2xl bg-brand-cream/50 border-none focus:ring-2 focus:ring-brand-olive/20" />
+      {/* Form */}
+      <section className="py-16 md:py-20">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-brand-olive/5">
+            <AnimatePresence mode="wait">
+              {submitted ? (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center py-12 space-y-6"
+                >
+                  <CheckCircle2 size={56} className="text-brand-olive mx-auto" />
+                  <h3 className="text-3xl font-serif">Thank you!</h3>
+                  <p className="text-brand-ink/60 leading-relaxed">
+                    Your feedback has been received. We review every message and use it to improve the hub.
+                  </p>
+                  <button
+                    onClick={() => { setSubmitted(false); setMessage(''); setName(''); setEmail(''); }}
+                    className="px-8 py-4 bg-brand-olive text-white rounded-full font-bold hover:bg-brand-olive/90 transition-all"
+                  >
+                    Send another message
+                  </button>
+                </motion.div>
+              ) : (
+                <motion.form key="form" onSubmit={handleSubmit} className="space-y-6">
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-bold mb-2 text-brand-ink/70">
+                        Name <span className="font-normal opacity-50">(optional)</span>
+                      </label>
+                      <input type="text" value={name} onChange={e => setName(e.target.value)} className={inputClass} placeholder="Jane Smith" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold mb-2 text-brand-ink/70">
+                        Email <span className="font-normal opacity-50">(optional)</span>
+                      </label>
+                      <input type="email" value={email} onChange={e => setEmail(e.target.value)} className={inputClass} placeholder="jane@example.com" />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold uppercase tracking-widest opacity-50">Email (Optional)</label>
-                    <input type="email" className="w-full p-4 rounded-2xl bg-brand-cream/50 border-none focus:ring-2 focus:ring-brand-olive/20" />
+
+                  <div>
+                    <label className="block text-sm font-bold mb-3 text-brand-ink/70">Type of feedback</label>
+                    <div className="flex flex-wrap gap-2">
+                      {FEEDBACK_TYPES.map(t => (
+                        <button
+                          key={t}
+                          type="button"
+                          onClick={() => setType(t)}
+                          className={`px-4 py-2 rounded-full text-sm font-semibold transition-all border ${
+                            type === t ? 'bg-brand-olive text-white border-brand-olive' : 'bg-brand-cream text-brand-ink/60 border-brand-olive/20 hover:border-brand-olive'
+                          }`}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                <div className="space-y-4">
-                  <label className="text-sm font-bold uppercase tracking-widest opacity-50 block">How are we doing?</label>
-                  <div className="flex gap-4">
-                    <button type="button" className="flex-1 py-4 rounded-2xl bg-brand-cream/50 flex flex-col items-center gap-2 hover:bg-brand-olive/10 transition-all border-2 border-transparent hover:border-brand-olive/20">
-                      <ThumbsUp size={24} className="text-brand-olive" />
-                      <span className="text-xs font-bold">Great</span>
-                    </button>
-                    <button type="button" className="flex-1 py-4 rounded-2xl bg-brand-cream/50 flex flex-col items-center gap-2 hover:bg-brand-olive/10 transition-all border-2 border-transparent hover:border-brand-olive/20">
-                      <MessageSquare size={24} className="text-brand-olive" />
-                      <span className="text-xs font-bold">Suggestions</span>
-                    </button>
-                    <button type="button" className="flex-1 py-4 rounded-2xl bg-brand-cream/50 flex flex-col items-center gap-2 hover:bg-brand-olive/10 transition-all border-2 border-transparent hover:border-brand-olive/20">
-                      <ThumbsDown size={24} className="text-brand-olive" />
-                      <span className="text-xs font-bold">Concerns</span>
-                    </button>
+                  <div>
+                    <label className="block text-sm font-bold mb-2 text-brand-ink/70">Your message *</label>
+                    <textarea
+                      rows={6}
+                      required
+                      value={message}
+                      onChange={e => setMessage(e.target.value)}
+                      className={inputClass + ' resize-none'}
+                      placeholder="Tell us what's on your mind…"
+                    />
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-bold uppercase tracking-widest opacity-50">Your Message</label>
-                  <textarea 
-                    rows={6}
-                    className="w-full p-4 rounded-2xl bg-brand-cream/50 border-none focus:ring-2 focus:ring-brand-olive/20"
-                    placeholder="Tell us what's on your mind..."
-                    required
-                  ></textarea>
-                </div>
+                  {error && <p className="text-red-600 text-sm bg-red-50 px-4 py-3 rounded-xl">{error}</p>}
 
-                <button type="submit" className="w-full py-5 bg-brand-olive text-white rounded-full font-bold flex items-center justify-center gap-2 hover:bg-brand-olive/90 transition-all">
-                  Send Feedback <Send size={20} />
-                </button>
-              </motion.form>
-            ) : (
-              <motion.div 
-                key="success"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-12 space-y-8"
-              >
-                <div className="w-24 h-24 bg-brand-olive/10 text-brand-olive rounded-full flex items-center justify-center mx-auto">
-                  <CheckCircle size={48} />
-                </div>
-                <h3 className="text-4xl font-serif">Thank You!</h3>
-                <p className="text-xl text-brand-ink/60 max-w-md mx-auto">
-                  Your feedback has been received. We review every message and use it to improve our community hub.
-                </p>
-                <button onClick={() => setSubmitted(false)} className="px-12 py-5 bg-brand-olive text-white rounded-full font-bold">
-                  Send Another Message
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full py-4 bg-brand-olive text-white rounded-full font-bold hover:bg-brand-olive/90 transition-all disabled:opacity-60 flex items-center justify-center gap-2"
+                  >
+                    {submitting ? <><Loader2 size={18} className="animate-spin" /> Sending…</> : <><Send size={18} /> Send feedback</>}
+                  </button>
+
+                </motion.form>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* Public board */}
+      {publicFeedback.length > 0 && (
+        <section className="py-16 md:py-20 bg-white">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl md:text-4xl font-serif mb-3 text-center">What people are saying</h2>
+            <p className="text-center text-brand-ink/50 text-sm mb-12">Selected feedback from our community</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {publicFeedback.map(fb => (
+                <motion.div
+                  key={fb.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="bg-brand-cream rounded-[28px] p-8 border border-brand-olive/5 space-y-4"
+                >
+                  <Quote size={24} className="text-brand-olive/30" />
+                  <p className="text-brand-ink/80 leading-relaxed italic">"{fb.message}"</p>
+                  <div className="flex items-center justify-between pt-2 border-t border-brand-olive/10">
+                    <span className="text-sm font-bold text-brand-ink/60">{fb.name || 'Anonymous'}</span>
+                    <span className="text-xs px-3 py-1 bg-brand-olive/10 text-brand-olive rounded-full">{fb.type}</span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
     </div>
   );
 };
