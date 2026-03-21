@@ -17,6 +17,9 @@ import { Volunteer } from './pages/Volunteer';
 import { Members } from './pages/Members';
 import { Feedback } from './pages/Feedback';
 import { Login } from './pages/Login';
+import { Signup } from './pages/Signup';
+import { ResetPassword } from './pages/ResetPassword';
+import { UpdatePassword } from './pages/UpdatePassword';
 import { Dashboard } from './pages/Dashboard';
 import { WhatsOn } from './pages/WhatsOn';
 import { MakerStories } from './pages/MakerStories';
@@ -81,7 +84,9 @@ export default function App() {
                 <Route path="/whats-on" element={<PageWrapper><WhatsOn /></PageWrapper>} />
                 <Route path="/maker-stories" element={<PageWrapper><MakerStories /></PageWrapper>} />
                 <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
-                <Route path="/signup" element={<PageWrapper><Join /></PageWrapper>} />
+                <Route path="/signup" element={<PageWrapper><Signup /></PageWrapper>} />
+                <Route path="/reset-password" element={<PageWrapper><ResetPassword /></PageWrapper>} />
+                <Route path="/update-password" element={<PageWrapper><UpdatePassword /></PageWrapper>} />
                 <Route path="/dashboard" element={<ProtectedRoute requiredRole="founder"><PageWrapper><Dashboard /></PageWrapper></ProtectedRoute>} />
                 <Route path="/claim/:id" element={<PageWrapper><ClaimListing /></PageWrapper>} />
                 <Route path="/submit-story" element={<PageWrapper><SubmitStory /></PageWrapper>} />
