@@ -81,6 +81,7 @@ export default function App() {
                 <Route path="/whats-on" element={<PageWrapper><WhatsOn /></PageWrapper>} />
                 <Route path="/maker-stories" element={<PageWrapper><MakerStories /></PageWrapper>} />
                 <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
+                <Route path="/signup" element={<PageWrapper><Join /></PageWrapper>} />
                 <Route path="/dashboard" element={<ProtectedRoute requiredRole="founder"><PageWrapper><Dashboard /></PageWrapper></ProtectedRoute>} />
                 <Route path="/claim/:id" element={<PageWrapper><ClaimListing /></PageWrapper>} />
                 <Route path="/submit-story" element={<PageWrapper><SubmitStory /></PageWrapper>} />

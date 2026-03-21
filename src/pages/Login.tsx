@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
-import { LogIn, User, ShieldCheck, Store, Mail, Lock, AlertCircle } from 'lucide-react';
+import { LogIn, User, ShieldCheck, Store, Mail, Lock, AlertCircle, UserPlus } from 'lucide-react';
 import { motion } from 'motion/react';
 
 const isSupabaseConfigured = () => {
@@ -87,6 +87,20 @@ export const Login: React.FC = () => {
                   {loading ? 'Signing in...' : 'Sign In'}
                 </button>
               </form>
+
+              {/* Create Account divider */}
+              <div className="flex items-center gap-4 my-8">
+                <div className="flex-1 h-px bg-brand-olive/10" />
+                <span className="text-xs text-brand-ink/40 font-medium uppercase tracking-wider">or</span>
+                <div className="flex-1 h-px bg-brand-olive/10" />
+              </div>
+              <Link
+                to="/join"
+                className="flex items-center justify-center gap-3 w-full py-5 bg-[#8B1A1A] text-[#F5F0E8] rounded-full font-bold hover:bg-[#7a1616] transition-all"
+              >
+                <UserPlus size={20} />
+                New here? Create your account →
+              </Link>
             </>
           ) : (
             // Demo mode when Supabase not yet configured
@@ -121,6 +135,19 @@ export const Login: React.FC = () => {
                   Sign In
                 </button>
               </form>
+
+              <div className="flex items-center gap-4 my-8">
+                <div className="flex-1 h-px bg-brand-olive/10" />
+                <span className="text-xs text-brand-ink/40 font-medium uppercase tracking-wider">or</span>
+                <div className="flex-1 h-px bg-brand-olive/10" />
+              </div>
+              <Link
+                to="/join"
+                className="flex items-center justify-center gap-3 w-full py-5 bg-[#8B1A1A] text-[#F5F0E8] rounded-full font-bold hover:bg-[#7a1616] transition-all"
+              >
+                <UserPlus size={20} />
+                New here? Create your account →
+              </Link>
             </>
           )}
         </motion.div>

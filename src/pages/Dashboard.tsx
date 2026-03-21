@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 import {
   LayoutDashboard, ClipboardList, StickyNote, CloudRain, Settings, Package,
   Users, Radio, CheckCircle2, AlertCircle, Store, Plus, Search, Filter,
   ArrowRight, ExternalLink, ShieldCheck, Zap, Mail, CheckSquare, Map, Coins,
   Calendar, BookOpen, Bot, Battery, Coffee, Trash2, UserPlus, Clock, Download,
   ToggleLeft, ToggleRight, ShieldAlert, Edit, PlayCircle, Check, Circle,
-  Layers, Send, Star, Globe, ExternalLink as LinkIcon, Crown, Phone, FileText
+  Layers, Send, Star, Globe, ExternalLink as LinkIcon, Crown, Phone, FileText,
+  Key, Save
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
@@ -84,6 +86,12 @@ export const Dashboard: React.FC = () => {
   const [editingAffiliatesId, setEditingAffiliatesId] = useState<string | null>(null);
   const [tempAffiliateLinks, setTempAffiliateLinks] = useState<{ label: string, url: string }[]>([]);
 
+  // API key state
+  const [anthropicApiKey, setAnthropicApiKey] = useState('');
+  const [apiKeyInput, setApiKeyInput] = useState('');
+  const [savingApiKey, setSavingApiKey] = useState(false);
+  const [apiKeySaved, setApiKeySaved] = useState(false);
+
   // Roadmap state
   const [roadmapProgress, setRoadmapProgress] = useState<Record<string, boolean[]>>(() => {
     try { return JSON.parse(localStorage.getItem('roadmapProgress') || '{}'); } catch { return {}; }
@@ -107,6 +115,22 @@ export const Dashboard: React.FC = () => {
   };
 
   useEffect(() => { if (user?.role === 'founder' || user?.role === 'staff') { refreshData(); } }, [user]);
+
+  // Fetch API key from pa_settings on mount
+  useEffect(() => {
+    supabase.from('pa_settings').select('key_value').eq('key_name', 'anthropic_api_key').single()
+      .then(({ data }) => { if (data?.key_value) setAnthropicApiKey(data.key_value); });
+  }, []);
+
+  const handleSaveApiKey = async () => {
+    if (!apiKeyInput.trim()) return;
+    setSavingApiKey(true);
+    await supabase.from('pa_settings').upsert({ key_name: 'anthropic_api_key', key_value: apiKeyInput.trim() });
+    setAnthropicApiKey(apiKeyInput.trim());
+    setApiKeySaved(true);
+    setSavingApiKey(false);
+    setTimeout(() => setApiKeySaved(false), 3000);
+  };
 
   const updateRoadmap = (stepId: string, checkIdx: number, val: boolean) => {
     const stepChecks = roadmapProgress[stepId] || Array(ROADMAP_STEPS.find(s => s.id === stepId)?.checklist.length || 5).fill(false);
@@ -273,6 +297,29 @@ export const Dashboard: React.FC = () => {
               <h2 className="text-3xl font-serif mb-2">Hub Overview</h2>
               <p className="text-brand-ink/60">Your mission control for The Farmers Table Hub CIC.</p>
             </div>
+
+            {/* API key setup prompt — shown until key is added */}
+            {!anthropicApiKey && (
+              <motion.div
+                initial={{ opacity: 0, y: -12 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-[#F5F0E8] border-2 border-[#8B1A1A]/20 rounded-[28px] p-6 flex flex-col md:flex-row items-start md:items-center gap-4"
+              >
+                <div className="w-12 h-12 bg-[#8B1A1A]/10 rounded-2xl flex items-center justify-center flex-shrink-0">
+                  <Key size={22} className="text-[#8B1A1A]" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-[#8B1A1A] mb-1">One thing left to set up — your Claude AI key</p>
+                  <p className="text-sm text-brand-ink/60">Add your Anthropic API key to activate Claude chat. It only takes a moment.</p>
+                </div>
+                <button
+                  onClick={() => setActiveTab('settings')}
+                  className="px-5 py-3 bg-[#8B1A1A] text-[#F5F0E8] rounded-full text-sm font-bold hover:bg-[#7a1616] transition-all whitespace-nowrap"
+                >
+                  ⚙️ Go to Setup →
+                </button>
+              </motion.div>
+            )}
 
             {/* Fog-Day Survival Guide — founder only */}
             {isFogMode && (
@@ -1074,6 +1121,39 @@ export const Dashboard: React.FC = () => {
                 <h2 className="text-3xl font-serif mb-1">System Controls</h2>
                 <p className="text-brand-ink/60">Manage AI agent permissions and global application state.</p>
               </div>
+
+              {/* ── API Key Setup Panel ── */}
+              <div className={`bg-white p-8 rounded-[40px] border-2 shadow-sm ${anthropicApiKey ? 'border-brand-olive/10' : 'border-[#8B1A1A]/30'}`}>
+                <h3 className="text-xl font-serif mb-2 flex items-center gap-2">
+                  <Key className={anthropicApiKey ? 'text-brand-olive' : 'text-[#8B1A1A]'} />
+                  Claude AI Setup
+                  {anthropicApiKey && <span className="ml-2 px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">Active ✓</span>}
+                  {!anthropicApiKey && <span className="ml-2 px-3 py-1 bg-[#8B1A1A]/10 text-[#8B1A1A] text-xs font-bold rounded-full">Key needed</span>}
+                </h3>
+                <p className="text-brand-ink/60 text-sm mb-6">
+                  {anthropicApiKey
+                    ? 'Your Anthropic API key is saved. Claude chat is active on the dashboard.'
+                    : 'Paste your Anthropic API key below to activate Claude chat. You can find this at console.anthropic.com.'}
+                </p>
+                <div className="flex gap-3">
+                  <input
+                    type="password"
+                    value={apiKeyInput}
+                    onChange={e => setApiKeyInput(e.target.value)}
+                    placeholder={anthropicApiKey ? '••••••••  (key already saved — paste new one to update)' : 'sk-ant-...'}
+                    className="flex-1 px-5 py-4 bg-brand-cream/50 rounded-2xl border border-brand-olive/10 focus:ring-2 focus:ring-brand-olive/20 focus:outline-none text-sm font-mono"
+                  />
+                  <button
+                    onClick={handleSaveApiKey}
+                    disabled={savingApiKey || !apiKeyInput.trim()}
+                    className="px-6 py-4 bg-[#8B1A1A] text-[#F5F0E8] rounded-2xl font-bold text-sm hover:bg-[#7a1616] transition-all disabled:opacity-40 flex items-center gap-2 whitespace-nowrap"
+                  >
+                    <Save size={16} />
+                    {savingApiKey ? 'Saving...' : apiKeySaved ? 'Saved ✓' : 'Save Key'}
+                  </button>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="bg-white p-8 rounded-[40px] border border-brand-olive/5 shadow-sm">
                   <h3 className="text-xl font-serif mb-6 flex items-center gap-2"><Bot className="text-brand-olive" /> AI Agent Permissions</h3>
