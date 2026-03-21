@@ -25,7 +25,7 @@ export const RadioScheduleModal: React.FC<Props> = ({ show, onClose, onSave }) =
                         <div className="w-10 h-10 flex items-center justify-center rounded-2xl bg-brand-cream text-brand-olive">
                             <Radio size={20} />
                         </div>
-                        <h2 className="text-2xl font-serif">Edit Show</h2>
+                        <h2 className="text-2xl font-serif">{show.id ? 'Edit Show' : 'Add Show'}</h2>
                     </div>
                     <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-brand-cream"><X size={20} /></button>
                 </div>
