@@ -1,19 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { FogProvider } from './context/FogContext';
 import { AuthProvider } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { Home } from './pages/Home';
-import { Directory } from './pages/Directory';
-import { Radio } from './pages/Radio';
 import { About } from './pages/About';
-import { Join } from './pages/Join';
+import { Radio } from './pages/Radio';
 import { Resources } from './pages/Resources';
-import { Marketplace } from './pages/Marketplace';
-import { MakersHub } from './pages/MakersHub';
-import { Cafe } from './pages/Cafe';
-import { Volunteer } from './pages/Volunteer';
 import { Members } from './pages/Members';
 import { Feedback } from './pages/Feedback';
 import { Login } from './pages/Login';
@@ -21,25 +14,11 @@ import { Signup } from './pages/Signup';
 import { ResetPassword } from './pages/ResetPassword';
 import { UpdatePassword } from './pages/UpdatePassword';
 import { Dashboard } from './pages/Dashboard';
-import { WhatsOn } from './pages/WhatsOn';
-import { MakerStories } from './pages/MakerStories';
-import { ClaimListing } from './pages/ClaimListing';
-import { SubmitStory } from './pages/SubmitStory';
-import { MakersShop } from './pages/MakersShop';
 import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
-import { CommandCenter } from './pages/CommandCenter';
-import { Subscriptions } from './pages/Subscriptions';
-import { ChangesDraft } from './pages/ChangesDraft';
-import { MakersDirectory } from './pages/MakersDirectory';
-import { SupportMakers } from './pages/SupportMakers';
-import { BecomeAMaker } from './pages/BecomeAMaker';
-import { Apply } from './pages/Apply';
 import { Notes } from './pages/Notes';
-import { JamGuide } from './pages/guides/JamGuide';
-import { ProjectGuide } from './pages/guides/ProjectGuide';
 import { DraftSpace } from './pages/DraftSpace';
-import WhatsOnAgent from './pages/WhatsOnAgent';
+import { Join } from './pages/Join';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AnimatePresence, motion } from 'motion/react';
 
@@ -63,54 +42,32 @@ const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 export default function App() {
   return (
     <AuthProvider>
-      <FogProvider>
-        <Router>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="flex-grow">
-              <Routes>
-                <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
-                <Route path="/directory" element={<PageWrapper><Directory /></PageWrapper>} />
-                <Route path="/radio" element={<PageWrapper><Radio /></PageWrapper>} />
-                <Route path="/marketplace" element={<PageWrapper><Marketplace /></PageWrapper>} />
-                <Route path="/makers-hub" element={<PageWrapper><MakersHub /></PageWrapper>} />
-                <Route path="/cafe" element={<PageWrapper><Cafe /></PageWrapper>} />
-                <Route path="/volunteer" element={<PageWrapper><Volunteer /></PageWrapper>} />
-                <Route path="/members" element={<ProtectedRoute><PageWrapper><Members /></PageWrapper></ProtectedRoute>} />
-                <Route path="/feedback" element={<PageWrapper><Feedback /></PageWrapper>} />
-                <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
-                <Route path="/join" element={<PageWrapper><Join /></PageWrapper>} />
-                <Route path="/resources" element={<PageWrapper><Resources /></PageWrapper>} />
-                <Route path="/whats-on" element={<PageWrapper><WhatsOn /></PageWrapper>} />
-                <Route path="/maker-stories" element={<PageWrapper><MakerStories /></PageWrapper>} />
-                <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
-                <Route path="/signup" element={<PageWrapper><Signup /></PageWrapper>} />
-                <Route path="/reset-password" element={<PageWrapper><ResetPassword /></PageWrapper>} />
-                <Route path="/update-password" element={<PageWrapper><UpdatePassword /></PageWrapper>} />
-                <Route path="/dashboard" element={<ProtectedRoute requiredRole="founder"><PageWrapper><Dashboard /></PageWrapper></ProtectedRoute>} />
-                <Route path="/claim/:id" element={<PageWrapper><ClaimListing /></PageWrapper>} />
-                <Route path="/submit-story" element={<PageWrapper><SubmitStory /></PageWrapper>} />
-                <Route path="/makers-shop" element={<PageWrapper><MakersShop /></PageWrapper>} />
-                <Route path="/privacy" element={<PageWrapper><Privacy /></PageWrapper>} />
-                <Route path="/terms" element={<PageWrapper><Terms /></PageWrapper>} />
-                <Route path="/command" element={<ProtectedRoute requiredRole="founder"><PageWrapper><CommandCenter /></PageWrapper></ProtectedRoute>} />
-                <Route path="/subscriptions" element={<Subscriptions />} />
-                <Route path="/changes" element={<ChangesDraft />} />
-                <Route path="/makers" element={<PageWrapper><MakersDirectory /></PageWrapper>} />
-                <Route path="/support-the-makers" element={<PageWrapper><SupportMakers /></PageWrapper>} />
-                <Route path="/become-a-maker" element={<PageWrapper><BecomeAMaker /></PageWrapper>} />
-                <Route path="/apply" element={<PageWrapper><Apply /></PageWrapper>} />
-                <Route path="/notes" element={<ProtectedRoute requiredRole="founder"><PageWrapper><Notes /></PageWrapper></ProtectedRoute>} />
-                <Route path="/guides/:guideId" element={<PageWrapper><ProjectGuide /></PageWrapper>} />
-                <Route path="/draft" element={<PageWrapper><DraftSpace /></PageWrapper>} />
-                <Route path="/whats-on-agent" element={<WhatsOnAgent />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-        </Router>
-      </FogProvider>
+      <Router>
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <main className="flex-grow">
+            <Routes>
+              <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
+              <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
+              <Route path="/radio" element={<PageWrapper><Radio /></PageWrapper>} />
+              <Route path="/resources" element={<PageWrapper><Resources /></PageWrapper>} />
+              <Route path="/join" element={<PageWrapper><Join /></PageWrapper>} />
+              <Route path="/members" element={<ProtectedRoute><PageWrapper><Members /></PageWrapper></ProtectedRoute>} />
+              <Route path="/feedback" element={<PageWrapper><Feedback /></PageWrapper>} />
+              <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
+              <Route path="/signup" element={<PageWrapper><Signup /></PageWrapper>} />
+              <Route path="/reset-password" element={<PageWrapper><ResetPassword /></PageWrapper>} />
+              <Route path="/update-password" element={<PageWrapper><UpdatePassword /></PageWrapper>} />
+              <Route path="/dashboard" element={<ProtectedRoute requiredRole="founder"><PageWrapper><Dashboard /></PageWrapper></ProtectedRoute>} />
+              <Route path="/notes" element={<ProtectedRoute requiredRole="founder"><PageWrapper><Notes /></PageWrapper></ProtectedRoute>} />
+              <Route path="/draft" element={<ProtectedRoute requiredRole="founder"><PageWrapper><DraftSpace /></PageWrapper></ProtectedRoute>} />
+              <Route path="/privacy" element={<PageWrapper><Privacy /></PageWrapper>} />
+              <Route path="/terms" element={<PageWrapper><Terms /></PageWrapper>} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </Router>
     </AuthProvider>
   );
 }
-

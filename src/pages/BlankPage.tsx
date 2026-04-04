@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 
 /**
  * BlankPage Boilerplate
- * A clean, standard page structure for The Farmers Table Hub.
+ * A clean, standard page structure for Heritage Craft Media.
  * Copy and paste this to start a new feature or content page.
  */
 export const BlankPage: React.FC = () => {

@@ -1,6 +1,6 @@
 {
-  "name": "The Farmers Table Hub CIC",
-  "description": "A community-focused social enterprise connecting local food producers with consumers through a directory and community radio.",
+  "name": "Heritage Craft Media",
+  "description": "Heritage Craft Media — celebrating makers, heritage crafts, and community through storytelling, radio, and media.",
   "requestFramePermissions": [
     "microphone",
     "geolocation"
