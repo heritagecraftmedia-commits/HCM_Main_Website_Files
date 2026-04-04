@@ -1,45 +1,16 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
 
 interface FogContextType {
   isFogMode: boolean;
   toggleFogMode: () => void;
 }
 
-const FogContext = createContext<FogContextType | undefined>(undefined);
+const FogContext = createContext<FogContextType>({ isFogMode: false, toggleFogMode: () => {} });
 
-export const FogProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isFogMode, setIsFogMode] = useState(() => {
-    const saved = localStorage.getItem('fogMode');
-    return saved === 'true';
-  });
+export const FogProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <FogContext.Provider value={{ isFogMode: false, toggleFogMode: () => {} }}>
+    {children}
+  </FogContext.Provider>
+);
 
-  const toggleFogMode = () => {
-    setIsFogMode((prev) => {
-      const newValue = !prev;
-      localStorage.setItem('fogMode', String(newValue));
-      return newValue;
-    });
-  };
-
-  useEffect(() => {
-    if (isFogMode) {
-      document.body.classList.add('fog-mode-active');
-    } else {
-      document.body.classList.remove('fog-mode-active');
-    }
-  }, [isFogMode]);
-
-  return (
-    <FogContext.Provider value={{ isFogMode, toggleFogMode }}>
-      {children}
-    </FogContext.Provider>
-  );
-};
-
-export const useFog = () => {
-  const context = useContext(FogContext);
-  if (context === undefined) {
-    throw new Error('useFog must be used within a FogProvider');
-  }
-  return context;
-};
+export const useFog = () => useContext(FogContext);

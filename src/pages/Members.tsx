@@ -192,18 +192,17 @@ export const Members: React.FC = () => {
             </div>
           </section>
 
-          {/* FTH team message */}
+          {/* HCM team message */}
           <section>
-            <h2 className="text-xl font-bold mb-4 text-brand-ink/70">From the FTH Team</h2>
+            <h2 className="text-xl font-bold mb-4 text-brand-ink/70">From the HCM Team</h2>
             <div className="bg-brand-olive text-brand-cream rounded-[32px] p-8 space-y-3">
               <div className="flex items-center gap-2 mb-4">
                 <CheckCircle2 size={18} />
                 <span className="text-sm font-bold uppercase tracking-wide opacity-70">Message from Scott</span>
               </div>
               <p className="leading-relaxed opacity-90">
-                Thank you for being part of Farmers Table Hub. We're growing every week — more producers
-                joining, more events planned, and the radio studio getting closer. Keep an eye on the
-                What's On page and don't hesitate to share your feedback.
+                Thank you for being part of Heritage Craft Media. We're growing every week — more makers
+                joining, more stories being told, and the radio studio getting closer. Don't hesitate to share your feedback.
               </p>
               <a href="/feedback" className="inline-block mt-2 text-sm font-bold underline underline-offset-2 opacity-70 hover:opacity-100 transition-opacity">
                 Leave feedback →

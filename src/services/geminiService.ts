@@ -6,13 +6,13 @@ const ai = new GoogleGenAI({ apiKey });
 // ── Community Content Generator ──
 export const generateCommunityContent = async () => {
   const prompt = `
-    Generate the following content for "The Farmers Table Hub CIC", a community interest company in Farnham that connects local food producers with consumers and runs a community radio station. 
-    The founder is a stroke survivor, so the tone should be warm, inclusive, and clear.
-    
-    1. Three sample event descriptions (e.g., Farmers Market, Radio Workshop, Cooking Demo).
+    Generate the following content for "Heritage Craft Media", a community media organisation celebrating makers, heritage crafts, and community through storytelling, radio, and media.
+    The tone should be warm, inclusive, and clear.
+
+    1. Three sample event descriptions (e.g., Craft Workshop, Radio Broadcast, Maker Showcase).
     2. A welcome message template for new community members.
-    3. Five blog post ideas related to community engagement and local events.
-    
+    3. Five blog post ideas related to heritage crafts and community makers.
+
     Return the result in a structured JSON format with the following keys:
     - events: Array of { title: string, description: string, date: string }
     - welcomeMessage: string
@@ -33,14 +33,13 @@ export const generateCommunityContent = async () => {
 };
 
 // ── DISCOVERY AGENT ──
-// Finds potential artisan makers from public information
 export const runDiscoverySearch = async (
   location: string,
   craftCategory: string
 ): Promise<{ displayName: string; bioText: string; locationHint: string; categoryHint: string; sourcePlatform: string; profileUrl: string; discoveryReason: string }[]> => {
-  const prompt = `You are an Artisan Discovery Agent for The Farmers Table Hub CIC in Farnham, Surrey.
+  const prompt = `You are a Maker Discovery Agent for Heritage Craft Media.
 
-Your task is to suggest potential local artisans and makers who might be a good fit for a community craft directory.
+Your task is to suggest potential local makers and craftspeople who might be a good fit for a community craft directory.
 
 Search parameters:
 - Location: "${location}"
@@ -78,13 +77,12 @@ Return exactly 5 profiles as a JSON array with these fields:
 };
 
 // ── QUALIFICATION AGENT ──
-// Scores a lead 1-5 on artisan authenticity
 export const qualifyArtisan = async (
   name: string,
   bio: string,
   platform: string
 ): Promise<{ artisanScore: number; qualificationNotes: string; qualified: boolean }> => {
-  const prompt = `You are an Artisan Qualification Agent.
+  const prompt = `You are a Maker Qualification Agent for Heritage Craft Media.
 
 Review this profile and decide whether this person is a genuine craft maker.
 
@@ -99,14 +97,6 @@ Score from 1–5 based on:
 3 = Possible artisan (some indicators)
 4 = Likely artisan (strong indicators)
 5 = Clearly demonstrated craft practice (tools, process, workshop visible)
-
-Indicators of a genuine maker:
-- Mentions of making, forging, weaving, sewing, turning, firing
-- Workshop or studio context
-- Tools and materials referenced
-- Process content / making videos
-- Small batch language
-- Attends markets or fairs
 
 Return JSON: { "artisanScore": number, "qualificationNotes": string (2-3 sentences), "qualified": boolean }
 If uncertain, score conservatively. qualified = true only if score >= 3.`;
@@ -125,10 +115,9 @@ If uncertain, score conservatively. qualified = true only if score >= 3.`;
 };
 
 // ── ENRICHMENT AGENT ──
-// Creates a draft directory listing from raw profile info
 export const enrichArtisanProfile = async (rawBio: string, name: string): Promise<string> => {
-  const prompt = `You are a copywriter for The Farmers Table Hub CIC.
-Write a warm, respectful draft directory listing bio based on this information:
+  const prompt = `You are a copywriter for Heritage Craft Media.
+Write a warm, respectful draft maker profile bio based on this information:
 
 Name: ${name}
 Bio: ${rawBio}
@@ -156,15 +145,14 @@ Return plain text only.`;
 };
 
 // ── OUTREACH AGENT ──
-// Drafts a friendly opt-in invitation message (NEVER auto-sends)
 export const draftOutreachMessage = async (
   vendorName: string,
   craftCategory: string,
   location: string
 ): Promise<string> => {
-  const prompt = `You are an Artisan Outreach Drafting Agent for The Farmers Table Hub CIC.
+  const prompt = `You are an Outreach Drafting Agent for Heritage Craft Media.
 
-Write a short, respectful invitation message for a maker to join the community craft directory.
+Write a short, respectful invitation message for a maker to be featured in our community media.
 
 Maker details:
 - Name: "${vendorName}"
@@ -175,9 +163,9 @@ RULES:
 - Opt-in only, no pressure
 - No marketing claims or urgency language
 - Mention they were found via publicly shared work
-- Clear that the listing is free and optional
+- Clear that the feature is free and optional
 - Community-led tone
-- Include a placeholder {{CLAIM_LINK}} where the claim URL would go
+- Include a placeholder {{CLAIM_LINK}} where the link would go
 - Keep under 120 words
 
 Return the message text only. No subject line.`;
@@ -187,9 +175,9 @@ Return the message text only. No subject line.`;
       model: "gemini-2.0-flash",
       contents: [{ parts: [{ text: prompt }] }],
     });
-    return response.text?.trim() || `Hello ${vendorName}, we'd love to invite you to join The Farmers Table Hub CIC directory. It's free, optional, and celebrates local makers. Visit {{CLAIM_LINK}} to learn more.`;
+    return response.text?.trim() || `Hello ${vendorName}, we'd love to invite you to be featured with Heritage Craft Media. It's free, optional, and celebrates local makers. Visit {{CLAIM_LINK}} to learn more.`;
   } catch (error) {
     console.error("Outreach Agent error:", error);
-    return `Hello ${vendorName}, we'd love to invite you to join The Farmers Table Hub CIC directory. It's free, optional, and celebrates local makers. Visit {{CLAIM_LINK}} to learn more.`;
+    return `Hello ${vendorName}, we'd love to invite you to be featured with Heritage Craft Media. It's free, optional, and celebrates local makers. Visit {{CLAIM_LINK}} to learn more.`;
   }
 };

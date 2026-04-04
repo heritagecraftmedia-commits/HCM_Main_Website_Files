@@ -50,7 +50,7 @@ export const Privacy: React.FC = () => {
                     <li>Request deletion of your data (the "Right to be Forgotten").</li>
                     <li>Withdraw consent for marketing communications at any time.</li>
                 </ul>
-                <p>To exercise these rights, please email us at **hello@farmtotablehub.org.uk**.</p>
+                <p>To exercise these rights, please email us at **hello@heritagecraftmedia.com**.</p>
             </LegalSection>
         </LegalLayout>
     );

@@ -10,7 +10,7 @@ export const Join: React.FC = () => {
     <div className="py-16 md:py-24 bg-brand-cream min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-7xl font-serif mb-6">Join the <span className="italic text-brand-olive">Farmers Table Hub</span></h1>
+          <h1 className="text-5xl md:text-7xl font-serif mb-6">Join <span className="italic text-brand-olive">Heritage Craft Media</span></h1>
           <p className="text-xl text-brand-ink/70 max-w-2xl mx-auto">
             Whether you're a local producer looking for visibility or a community member wanting to support our mission, we'd love to have you.
           </p>
