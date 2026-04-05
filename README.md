@@ -61,3 +61,4 @@ This project is built on strict ethical principles:
 ## ⚖️ License
 
 This project is developed for The Farmers Table Hub CIC. All rights reserved.
+
