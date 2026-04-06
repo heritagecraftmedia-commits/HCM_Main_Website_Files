@@ -86,7 +86,7 @@ export const Join: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="p-8 rounded-3xl border-2 border-brand-cream hover:border-brand-olive/20 transition-all cursor-pointer group">
                         <h4 className="text-xl font-bold mb-2">Basic Listing</h4>
-                        <p className="text-brand-ink/50 text-sm mb-6">Free for local micro-producers</p>
+                        <p className="text-brand-ink/50 text-sm mb-6">Free listing for independent artisan makers</p>
                         <ul className="space-y-3 mb-8">
                           <li className="flex items-center gap-2 text-sm"><Check size={16} className="text-brand-olive" /> Directory presence</li>
                           <li className="flex items-center gap-2 text-sm"><Check size={16} className="text-brand-olive" /> Basic profile</li>
