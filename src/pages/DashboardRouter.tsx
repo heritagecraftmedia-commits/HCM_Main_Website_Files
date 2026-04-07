@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 /**
  * DashboardRouter — reads the user's role and redirects to the correct dashboard.
  *
- * owner / founder / admin → /hcmofficehub
+ * owner / founder / admin → /founder-dashboard
  * staff / rep             → /staffdashboard
  * student / client / customer → /studentdashboard
  * not logged in           → /login
@@ -21,7 +21,7 @@ export const DashboardRouter: React.FC = () => {
       return;
     }
     if (user.role === 'founder' || user.role === 'admin') {
-      navigate('/hcmofficehub', { replace: true });
+      navigate('/founder-dashboard', { replace: true });
     } else if (user.role === 'staff' || user.role === 'rep') {
       navigate('/staffdashboard', { replace: true });
     } else {

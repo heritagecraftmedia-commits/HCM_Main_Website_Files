@@ -14,6 +14,7 @@ import { Signup } from './pages/Signup';
 import { ResetPassword } from './pages/ResetPassword';
 import { UpdatePassword } from './pages/UpdatePassword';
 import { DashboardRouter } from './pages/DashboardRouter';
+import { FounderDashboard } from './pages/FounderDashboard';
 import { StaffDashboard } from './pages/StaffDashboard';
 import { StudentDashboard } from './pages/StudentDashboard';
 import { Privacy } from './pages/Privacy';
@@ -61,6 +62,7 @@ export default function App() {
               <Route path="/reset-password" element={<PageWrapper><ResetPassword /></PageWrapper>} />
               <Route path="/update-password" element={<PageWrapper><UpdatePassword /></PageWrapper>} />
               <Route path="/dashboard" element={<ProtectedRoute><PageWrapper><DashboardRouter /></PageWrapper></ProtectedRoute>} />
+              <Route path="/founder-dashboard" element={<ProtectedRoute allowedRoles={['founder', 'admin']}><PageWrapper><FounderDashboard /></PageWrapper></ProtectedRoute>} />
               <Route path="/staffdashboard" element={<ProtectedRoute allowedRoles={['founder', 'admin', 'staff', 'rep']}><PageWrapper><StaffDashboard /></PageWrapper></ProtectedRoute>} />
               <Route path="/studentdashboard" element={<ProtectedRoute allowedRoles={['founder', 'admin', 'staff', 'rep', 'student', 'client', 'customer']}><PageWrapper><StudentDashboard /></PageWrapper></ProtectedRoute>} />
               <Route path="/notes" element={<ProtectedRoute allowedRoles={['founder', 'admin']}><PageWrapper><Notes /></PageWrapper></ProtectedRoute>} />
