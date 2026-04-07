@@ -47,7 +47,7 @@ const buildUser = async (supabaseUser: { id: string; email?: string | null }): P
   return {
     id: supabaseUser.id,
     name: profile.name || supabaseUser.email?.split('@')[0] || 'User',
-    email: profile.email || supabaseUser.email || '',
+    email: supabaseUser.email || profile.email || '',
     role: profile.role,
   };
 };
