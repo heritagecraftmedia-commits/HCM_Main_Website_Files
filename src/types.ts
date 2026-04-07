@@ -23,11 +23,12 @@ export interface MakerListing {
   tier: ListingTier;
 }
 
-export type UserRole = 'founder' | 'staff' | 'customer' | null;
+export type UserRole = 'founder' | 'admin' | 'staff' | 'rep' | 'student' | 'client' | 'customer' | null;
 
 export interface User {
   id: string;
   name: string;
+  email?: string;
   role: UserRole;
 }
 

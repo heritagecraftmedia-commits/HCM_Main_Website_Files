@@ -19,26 +19,36 @@ const isSupabaseConfigured = () => {
   return url && url !== 'https://placeholder.supabase.co' && url.includes('supabase.co');
 };
 
-// Fetch role from profiles table; maps 'owner' → 'founder' for route guards
-const fetchProfileRole = async (userId: string): Promise<UserRole> => {
+// Fetch profile from profiles table
+const fetchProfile = async (userId: string): Promise<{ role: UserRole; name: string; email: string }> => {
   const { data } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, full_name, email')
     .eq('id', userId)
     .single();
   const raw = data?.role as string | null;
-  if (raw === 'owner' || raw === 'founder') return 'founder';
-  if (raw === 'staff') return 'staff';
-  if (raw === 'customer') return 'customer';
-  return 'customer';
+  let role: UserRole = 'student';
+  if (raw === 'owner' || raw === 'founder') role = 'founder';
+  else if (raw === 'admin') role = 'admin';
+  else if (raw === 'staff') role = 'staff';
+  else if (raw === 'rep') role = 'rep';
+  else if (raw === 'student') role = 'student';
+  else if (raw === 'client') role = 'client';
+  else if (raw === 'customer') role = 'customer';
+  return {
+    role,
+    name: data?.full_name || '',
+    email: data?.email || '',
+  };
 };
 
 const buildUser = async (supabaseUser: { id: string; email?: string | null }): Promise<User> => {
-  const role = await fetchProfileRole(supabaseUser.id);
+  const profile = await fetchProfile(supabaseUser.id);
   return {
     id: supabaseUser.id,
-    name: supabaseUser.email?.split('@')[0] || 'User',
-    role,
+    name: profile.name || supabaseUser.email?.split('@')[0] || 'User',
+    email: profile.email || supabaseUser.email || '',
+    role: profile.role,
   };
 };
 

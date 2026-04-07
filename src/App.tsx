@@ -13,7 +13,9 @@ import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { ResetPassword } from './pages/ResetPassword';
 import { UpdatePassword } from './pages/UpdatePassword';
-import { Dashboard } from './pages/Dashboard';
+import { DashboardRouter } from './pages/DashboardRouter';
+import { StaffDashboard } from './pages/StaffDashboard';
+import { StudentDashboard } from './pages/StudentDashboard';
 import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
 import { Notes } from './pages/Notes';
@@ -58,9 +60,11 @@ export default function App() {
               <Route path="/signup" element={<PageWrapper><Signup /></PageWrapper>} />
               <Route path="/reset-password" element={<PageWrapper><ResetPassword /></PageWrapper>} />
               <Route path="/update-password" element={<PageWrapper><UpdatePassword /></PageWrapper>} />
-              <Route path="/dashboard" element={<ProtectedRoute requiredRole="founder"><PageWrapper><Dashboard /></PageWrapper></ProtectedRoute>} />
-              <Route path="/notes" element={<ProtectedRoute requiredRole="founder"><PageWrapper><Notes /></PageWrapper></ProtectedRoute>} />
-              <Route path="/draft" element={<ProtectedRoute requiredRole="founder"><PageWrapper><DraftSpace /></PageWrapper></ProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><PageWrapper><DashboardRouter /></PageWrapper></ProtectedRoute>} />
+              <Route path="/staffdashboard" element={<ProtectedRoute allowedRoles={['founder', 'admin', 'staff', 'rep']}><PageWrapper><StaffDashboard /></PageWrapper></ProtectedRoute>} />
+              <Route path="/studentdashboard" element={<ProtectedRoute allowedRoles={['founder', 'admin', 'staff', 'rep', 'student', 'client', 'customer']}><PageWrapper><StudentDashboard /></PageWrapper></ProtectedRoute>} />
+              <Route path="/notes" element={<ProtectedRoute allowedRoles={['founder', 'admin']}><PageWrapper><Notes /></PageWrapper></ProtectedRoute>} />
+              <Route path="/draft" element={<ProtectedRoute allowedRoles={['founder', 'admin']}><PageWrapper><DraftSpace /></PageWrapper></ProtectedRoute>} />
               <Route path="/privacy" element={<PageWrapper><Privacy /></PageWrapper>} />
               <Route path="/terms" element={<PageWrapper><Terms /></PageWrapper>} />
             </Routes>

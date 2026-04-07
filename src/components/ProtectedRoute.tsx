@@ -5,19 +5,19 @@ import { UserRole } from '../types';
 
 interface Props {
   children: React.ReactNode;
-  /** If set, user must have this role or they are redirected to / */
-  requiredRole?: UserRole;
+  /** If set, user must have one of these roles or they are redirected to / */
+  allowedRoles?: UserRole[];
 }
 
 /**
  * ProtectedRoute — wraps a page and enforces authentication + optional role.
  *
- * - Loading  → shows a spinner (avoids flash-of-content while session restores)
- * - No user  → redirects to /login
- * - Wrong role → redirects to / (home)
- * - Correct  → renders children
+ * - Loading       → shows a spinner
+ * - No user       → redirects to /login
+ * - Wrong role    → redirects to /dashboard (role router will send them right)
+ * - Correct       → renders children
  */
-export const ProtectedRoute: React.FC<Props> = ({ children, requiredRole }) => {
+export const ProtectedRoute: React.FC<Props> = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -32,8 +32,8 @@ export const ProtectedRoute: React.FC<Props> = ({ children, requiredRole }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (requiredRole && user.role !== requiredRole) {
-    return <Navigate to="/" replace />;
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;
