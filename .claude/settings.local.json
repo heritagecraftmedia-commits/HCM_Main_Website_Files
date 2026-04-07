@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh repo view heritagecraftmedia-commits/heritagecraftmedia-com)",
+      "Bash(git add .)",
+      "Bash(git push origin main)",
+      "Bash(npm install:*)",
+      "Bash(grep -q ^.env$ /workspaces/HCM_Main_Website_Files/.gitignore)",
+      "Bash(curl -fsSL https://raw.githubusercontent.com/supabase/cli/main/scripts/install.sh)",
+      "Bash(bash)",
+      "Bash(curl -fsSL https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-x86_64.tar.gz -o /tmp/gcloud.tar.gz)",
+      "Bash(tar -xzf /tmp/gcloud.tar.gz -C /opt/)",
+      "Bash(vercel whoami:*)",
+      "Bash(vercel projects:*)",
+      "Bash(supabase link:*)",
+      "Bash(SUPABASE_ACCESS_TOKEN=sbp_90c2d7a0d97d85fd675993026928dfa3b9fb07c2 supabase db execute --project-ref jtpxdpjqxlqskhitifey --sql \"SELECT table_name FROM information_schema.tables WHERE table_schema = ''public'' ORDER BY table_name;\")",
+      "Bash(SUPABASE_ACCESS_TOKEN=sbp_90c2d7a0d97d85fd675993026928dfa3b9fb07c2 supabase projects list)",
+      "Bash(SUPABASE_ACCESS_TOKEN=sbp_90c2d7a0d97d85fd675993026928dfa3b9fb07c2 supabase db dump --project-ref jtpxdpjqxlqskhitifey --schema public --role postgres)",
+      "mcp__claude_ai_Supabase__execute_sql",
+      "mcp__claude_ai_Supabase__apply_migration",
+      "Read(//workspaces/The-Farmers-Table-Hub-CIC/**)",
+      "Bash(npm run:*)",
+      "Bash(npx tsc:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git -C /workspaces/The-Farmers-Table-Hub-CIC status --short)",
+      "mcp__claude_ai_Vercel__list_projects",
+      "WebSearch",
+      "mcp__claude_ai_Notion__notion-fetch",
+      "Bash(vercel --prod --yes)",
+      "Bash(gh api:*)",
+      "Bash(gh repo:*)",
+      "Bash(node -e \"import\\(''puppeteer''\\).then\\(\\(\\)=>console.log\\(''puppeteer OK''\\)\\).catch\\(e=>console.log\\(''MISSING:'',e.message\\)\\)\")"
+    ]
+  }
+}

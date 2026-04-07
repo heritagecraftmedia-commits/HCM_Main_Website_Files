@@ -64,7 +64,7 @@ export const AddEventModal: React.FC<Props> = ({ onClose, onSave }) => {
 
                     <Field label="City / Area" icon={MapPin}>
                         <input value={form.location} onChange={e => setForm({ ...form, location: e.target.value })}
-                            className={inputCls()} placeholder="Farnham, Surrey" />
+                            className={inputCls()} placeholder="Your town, County" />
                     </Field>
 
                     <Field label="Venue Name">

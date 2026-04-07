@@ -1,0 +1,43 @@
+{
+  "name": "HCM — Scenario 3: Weekly Finance Prompt",
+  "description": "Every Friday at 4:00 PM, send a Discord reminder to export Xero records.",
+  "blueprint": {
+    "flow": [
+      {
+        "id": 1,
+        "module": "builtin:BasicTrigger",
+        "metadata": {
+          "designer": { "x": 0, "y": 0 }
+        },
+        "parameters": {
+          "schedule": {
+            "type": "WEEKLY",
+            "dayOfWeek": 5,
+            "time": "16:00"
+          }
+        },
+        "label": "Every Friday 4:00 PM"
+      },
+      {
+        "id": 2,
+        "module": "discord:sendMessage",
+        "metadata": {
+          "designer": { "x": 200, "y": 0 }
+        },
+        "parameters": {
+          "webhookUrl": "PASTE_DISCORD_WEBHOOK_URL_HERE",
+          "content": "🟢 Finance check: Have you exported this week's Xero invoices to D.02 ACCOUNTS PAYABLE?"
+        },
+        "label": "Send Friday finance reminder"
+      }
+    ],
+    "metadata": {
+      "version": 1
+    }
+  },
+  "setup_notes": {
+    "step_1": "Replace PASTE_DISCORD_WEBHOOK_URL_HERE with your Discord webhook URL (same channel as Scenario 1, or a dedicated #finance-reminders channel).",
+    "step_2": "This scenario has no conditions — it fires every Friday regardless. That is intentional.",
+    "test_instructions": "Change the schedule to 'run once in 1 minute' to test. Verify the Discord message appears. Switch back to weekly Friday 4:00 PM after confirming."
+  }
+}

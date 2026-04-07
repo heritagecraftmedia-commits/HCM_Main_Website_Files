@@ -7,3 +7,8 @@ coverage/
 .env*
 !.env.example
 .vercel
+
+# Google Drive API credentials — never commit these
+hcm-drive-setup/credentials.json
+hcm-drive-setup/token.json
+hcm-drive-setup/folder-id-map.json

@@ -1,0 +1,138 @@
+{
+  "name": "HCM — Scenario 4: HubSpot Deal Closed → Drive Client Folder",
+  "description": "When a HubSpot deal moves to Closed Won, auto-create the client folder structure in Terminal A and notify Discord.",
+  "blueprint": {
+    "flow": [
+      {
+        "id": 1,
+        "module": "hubspot:watchDealStageChanges",
+        "metadata": {
+          "designer": { "x": 0, "y": 0 }
+        },
+        "parameters": {
+          "pipelineId": "PASTE_HUBSPOT_PIPELINE_ID_HERE",
+          "stageId": "closedwon"
+        },
+        "label": "Watch: HubSpot Deal → Closed Won"
+      },
+      {
+        "id": 2,
+        "module": "hubspot:getDeal",
+        "metadata": {
+          "designer": { "x": 200, "y": 0 }
+        },
+        "parameters": {
+          "dealId": "{{1.dealId}}",
+          "properties": ["dealname", "hubspot_owner_id", "closedate"]
+        },
+        "label": "Get deal details"
+      },
+      {
+        "id": 3,
+        "module": "hubspot:getAssociatedContacts",
+        "metadata": {
+          "designer": { "x": 400, "y": 0 }
+        },
+        "parameters": {
+          "dealId": "{{1.dealId}}"
+        },
+        "label": "Get associated contact (client name)"
+      },
+      {
+        "id": 4,
+        "module": "builtin:SetVariable",
+        "metadata": {
+          "designer": { "x": 600, "y": 0 }
+        },
+        "parameters": {
+          "name": "clientFolderName",
+          "value": "{{3.contacts[0].properties.lastname}}, {{3.contacts[0].properties.firstname}} - {{2.properties.dealname}}"
+        },
+        "label": "Build folder name: [LastName, FirstName] - [Deal Name]"
+      },
+      {
+        "id": 5,
+        "module": "google-drive:createFolder",
+        "metadata": {
+          "designer": { "x": 800, "y": 0 }
+        },
+        "parameters": {
+          "name": "{{4.clientFolderName}}",
+          "parentFolderId": "PASTE_A01_ACTIVE_CLIENTS_FOLDER_ID_HERE"
+        },
+        "label": "Create client folder in A.01 ACTIVE CLIENTS"
+      },
+      {
+        "id": 6,
+        "module": "google-drive:createFolder",
+        "metadata": {
+          "designer": { "x": 1000, "y": -60 }
+        },
+        "parameters": {
+          "name": "01 Admin",
+          "parentFolderId": "{{5.id}}"
+        },
+        "label": "Create sub-folder: 01 Admin"
+      },
+      {
+        "id": 7,
+        "module": "google-drive:createFolder",
+        "metadata": {
+          "designer": { "x": 1000, "y": 0 }
+        },
+        "parameters": {
+          "name": "02 Delivery",
+          "parentFolderId": "{{5.id}}"
+        },
+        "label": "Create sub-folder: 02 Delivery"
+      },
+      {
+        "id": 8,
+        "module": "google-drive:createFolder",
+        "metadata": {
+          "designer": { "x": 1000, "y": 60 }
+        },
+        "parameters": {
+          "name": "03 Comms",
+          "parentFolderId": "{{5.id}}"
+        },
+        "label": "Create sub-folder: 03 Comms"
+      },
+      {
+        "id": 9,
+        "module": "builtin:SetVariable",
+        "metadata": {
+          "designer": { "x": 1200, "y": 0 }
+        },
+        "parameters": {
+          "name": "driveFolderUrl",
+          "value": "https://drive.google.com/drive/folders/{{5.id}}"
+        },
+        "label": "Build folder URL"
+      },
+      {
+        "id": 10,
+        "module": "discord:sendMessage",
+        "metadata": {
+          "designer": { "x": 1400, "y": 0 }
+        },
+        "parameters": {
+          "webhookUrl": "PASTE_DISCORD_WEBHOOK_URL_HERE",
+          "content": "🔵 New client folder created: {{4.clientFolderName}} — check A.01 ACTIVE CLIENTS\n📁 {{9.driveFolderUrl}}"
+        },
+        "label": "Discord: new client alert"
+      }
+    ],
+    "metadata": {
+      "version": 1
+    }
+  },
+  "setup_notes": {
+    "step_1": "Connect your HubSpot account in Make.com (Create a connection in the HubSpot module).",
+    "step_2": "Replace PASTE_HUBSPOT_PIPELINE_ID_HERE with your HubSpot sales pipeline ID. Find it in HubSpot: Settings > CRM > Deals > Pipelines.",
+    "step_3": "Replace PASTE_A01_ACTIVE_CLIENTS_FOLDER_ID_HERE with the Google Drive folder ID for 'A.01 ACTIVE CLIENTS'. Find it in folder-id-map.json (key: 'a01').",
+    "step_4": "Replace PASTE_DISCORD_WEBHOOK_URL_HERE with your Discord webhook.",
+    "client_name_note": "The folder name is built from the associated HubSpot contact's name + deal name. If your deals don't have associated contacts, replace step 3-4 with just the deal name: use {{2.properties.dealname}} directly in step 5.",
+    "test_instructions": "Create a test deal in HubSpot and move it to Closed Won. Verify three things: (1) client folder appears in A.01, (2) three sub-folders exist inside, (3) Discord notification fired with the folder link. Then delete the test data."
+  }
+}

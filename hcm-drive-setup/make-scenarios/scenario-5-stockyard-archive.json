@@ -1,0 +1,128 @@
+{
+  "name": "HCM — Scenario 5: Stock Yard Auto-Archive",
+  "description": "When a HubSpot deal moves to Closed Lost or Project Complete, move the client folder from A.01 ACTIVE CLIENTS to 05 THE STOCK YARD and notify Discord.",
+  "blueprint": {
+    "flow": [
+      {
+        "id": 1,
+        "module": "hubspot:watchDealStageChanges",
+        "metadata": {
+          "designer": { "x": 0, "y": 0 }
+        },
+        "parameters": {
+          "pipelineId": "PASTE_HUBSPOT_PIPELINE_ID_HERE",
+          "stageIds": ["closedlost", "PASTE_PROJECT_COMPLETE_STAGE_ID_HERE"]
+        },
+        "label": "Watch: Deal → Closed Lost OR Project Complete"
+      },
+      {
+        "id": 2,
+        "module": "hubspot:getAssociatedContacts",
+        "metadata": {
+          "designer": { "x": 200, "y": 0 }
+        },
+        "parameters": {
+          "dealId": "{{1.dealId}}"
+        },
+        "label": "Get associated contact"
+      },
+      {
+        "id": 3,
+        "module": "hubspot:getDeal",
+        "metadata": {
+          "designer": { "x": 400, "y": 0 }
+        },
+        "parameters": {
+          "dealId": "{{1.dealId}}",
+          "properties": ["dealname"]
+        },
+        "label": "Get deal name"
+      },
+      {
+        "id": 4,
+        "module": "builtin:SetVariable",
+        "metadata": {
+          "designer": { "x": 600, "y": 0 }
+        },
+        "parameters": {
+          "name": "clientFolderName",
+          "value": "{{2.contacts[0].properties.lastname}}, {{2.contacts[0].properties.firstname}} - {{3.properties.dealname}}"
+        },
+        "label": "Build expected folder name"
+      },
+      {
+        "id": 5,
+        "module": "google-drive:searchFiles",
+        "metadata": {
+          "designer": { "x": 800, "y": 0 }
+        },
+        "parameters": {
+          "q": "name = '{{4.clientFolderName}}' and '{{PASTE_A01_ACTIVE_CLIENTS_FOLDER_ID_HERE}}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false",
+          "fields": "files(id, name)"
+        },
+        "label": "Find client folder in A.01"
+      },
+      {
+        "id": 6,
+        "module": "builtin:SetVariable",
+        "metadata": {
+          "designer": { "x": 1000, "y": 0 }
+        },
+        "parameters": {
+          "name": "currentYear",
+          "value": "{{formatDate(now; 'YYYY')}}"
+        },
+        "label": "Get current year"
+      },
+      {
+        "id": 7,
+        "module": "google-drive:searchFiles",
+        "metadata": {
+          "designer": { "x": 1200, "y": 0 }
+        },
+        "parameters": {
+          "q": "name = 'ARC-{{6.currentYear}}' and '{{PASTE_STOCKYARD_FOLDER_ID_HERE}}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false",
+          "fields": "files(id, name)"
+        },
+        "label": "Find ARC-[Year] folder in Stock Yard"
+      },
+      {
+        "id": 8,
+        "module": "google-drive:moveFile",
+        "metadata": {
+          "designer": { "x": 1400, "y": 0 }
+        },
+        "parameters": {
+          "fileId": "{{5.files[0].id}}",
+          "newParentId": "{{7.files[0].id}}",
+          "removeFromCurrentParents": true
+        },
+        "label": "Move client folder to Stock Yard ARC-[Year]"
+      },
+      {
+        "id": 9,
+        "module": "discord:sendMessage",
+        "metadata": {
+          "designer": { "x": 1600, "y": 0 }
+        },
+        "parameters": {
+          "webhookUrl": "PASTE_DISCORD_WEBHOOK_URL_HERE",
+          "content": "⚫ Client archived: {{4.clientFolderName}} moved to Stock Yard (ARC-{{6.currentYear}})."
+        },
+        "label": "Discord: archived alert"
+      }
+    ],
+    "metadata": {
+      "version": 1
+    }
+  },
+  "setup_notes": {
+    "step_1": "Replace PASTE_HUBSPOT_PIPELINE_ID_HERE with your HubSpot pipeline ID.",
+    "step_2": "Replace PASTE_PROJECT_COMPLETE_STAGE_ID_HERE with the stage ID for your 'Project Complete' stage in HubSpot. If you only use 'Closed Lost', remove that stageId from the array.",
+    "step_3": "Replace PASTE_A01_ACTIVE_CLIENTS_FOLDER_ID_HERE (key: 'a01') and PASTE_STOCKYARD_FOLDER_ID_HERE (key: 'stockYard') from folder-id-map.json.",
+    "step_4": "Replace PASTE_DISCORD_WEBHOOK_URL_HERE with your Discord webhook.",
+    "important_note": "This scenario searches for the client folder by name. The name must match exactly what Scenario 4 created. If the folder was manually renamed, this search will fail. Consistency in naming is critical.",
+    "error_handling": "If step 8 fails (folder not found), Make.com will log an error. Check the folder name manually and move it to the Stock Yard by hand. The Discord alert will still fire if step 9 is reached.",
+    "test_instructions": "Create a test deal, move it to Closed Won (fires Scenario 4 and creates the folder), then immediately move the same deal to Closed Lost. Verify the folder moves from A.01 to Stock Yard and Discord notifies. Delete test data."
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "name": "HCM — Scenario 1: The Siding Reminder",
+  "description": "Every Monday at 8:00 AM, count files in 00 THE SIDING. If > 0, send a Discord alert.",
+  "blueprint": {
+    "flow": [
+      {
+        "id": 1,
+        "module": "builtin:BasicTrigger",
+        "metadata": {
+          "designer": { "x": 0, "y": 0 }
+        },
+        "parameters": {
+          "schedule": {
+            "type": "WEEKLY",
+            "dayOfWeek": 1,
+            "time": "08:00"
+          }
+        },
+        "label": "Every Monday 8:00 AM"
+      },
+      {
+        "id": 2,
+        "module": "google-drive:listFiles",
+        "metadata": {
+          "designer": { "x": 200, "y": 0 }
+        },
+        "parameters": {
+          "folderId": "PASTE_SIDING_FOLDER_ID_HERE",
+          "includeSubfolders": false,
+          "limit": 100
+        },
+        "label": "List files in 00 THE SIDING"
+      },
+      {
+        "id": 3,
+        "module": "builtin:SetVariable",
+        "metadata": {
+          "designer": { "x": 400, "y": 0 }
+        },
+        "parameters": {
+          "name": "fileCount",
+          "value": "{{length(2.files)}}"
+        },
+        "label": "Count files"
+      },
+      {
+        "id": 4,
+        "module": "builtin:BasicRouter",
+        "metadata": {
+          "designer": { "x": 600, "y": 0 }
+        },
+        "routes": [
+          {
+            "label": "Files exist",
+            "filter": {
+              "name": "Files exist",
+              "conditions": [
+                [
+                  {
+                    "a": "{{3.fileCount}}",
+                    "b": "0",
+                    "o": "number:greater"
+                  }
+                ]
+              ]
+            },
+            "flow": [
+              {
+                "id": 5,
+                "module": "discord:sendMessage",
+                "metadata": {
+                  "designer": { "x": 800, "y": 0 }
+                },
+                "parameters": {
+                  "webhookUrl": "PASTE_DISCORD_WEBHOOK_URL_HERE",
+                  "content": "🚦 Siding check: {{3.fileCount}} files need filing in 00 THE SIDING. Run your 10-minute Signal Check."
+                },
+                "label": "Send Discord alert"
+              }
+            ]
+          },
+          {
+            "label": "Siding is clear",
+            "filter": {
+              "name": "No files",
+              "conditions": [
+                [
+                  {
+                    "a": "{{3.fileCount}}",
+                    "b": "0",
+                    "o": "number:equal"
+                  }
+                ]
+              ]
+            },
+            "flow": []
+          }
+        ],
+        "label": "Route: files or empty?"
+      }
+    ],
+    "metadata": {
+      "version": 1
+    }
+  },
+  "setup_notes": {
+    "step_1": "In Make.com, create a new scenario and import this blueprint using Scenario > Import Blueprint.",
+    "step_2": "Replace PASTE_SIDING_FOLDER_ID_HERE with the Google Drive folder ID for '00 THE SIDING'. Find it in folder-id-map.json (key: 'siding') after running phase1-create-folders.js.",
+    "step_3": "Replace PASTE_DISCORD_WEBHOOK_URL_HERE with your Discord webhook URL. Create one in Discord: Server Settings > Integrations > Webhooks.",
+    "step_4": "Set the Google Drive module to use your connected Google account.",
+    "step_5": "Run the scenario once manually to test. Verify a Discord message appears if there are files in the Siding.",
+    "test_instructions": "Drop one file into '00 THE SIDING' in Drive, then click 'Run once' in Make.com. You should see the Discord alert. Delete the test file after confirming."
+  }
+}

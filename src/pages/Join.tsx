@@ -71,7 +71,7 @@ export const Join: React.FC = () => {
                       </div>
                       <div className="md:col-span-2 space-y-2">
                         <label className="text-sm font-bold uppercase tracking-widest opacity-50">Location</label>
-                        <input type="text" className="w-full p-4 rounded-2xl bg-brand-cream/50 border-none focus:ring-2 focus:ring-brand-olive/20" placeholder="e.g. Farnham, Surrey" />
+                        <input type="text" className="w-full p-4 rounded-2xl bg-brand-cream/50 border-none focus:ring-2 focus:ring-brand-olive/20" placeholder="e.g. London, UK" />
                       </div>
                     </div>
                     <button onClick={() => setStep(2)} className="w-full py-5 bg-brand-olive text-white rounded-full font-bold flex items-center justify-center gap-2 hover:bg-brand-olive/90 transition-all">

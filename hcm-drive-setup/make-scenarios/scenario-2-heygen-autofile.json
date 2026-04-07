@@ -1,0 +1,68 @@
+{
+  "name": "HCM — Scenario 2: HeyGen Auto-File",
+  "description": "When a new file appears in the HeyGen Downloads watch folder, move it to B.OLD — Unsorted Rolling Stock with a datestamp prefix.",
+  "blueprint": {
+    "flow": [
+      {
+        "id": 1,
+        "module": "google-drive:watchNewFiles",
+        "metadata": {
+          "designer": { "x": 0, "y": 0 }
+        },
+        "parameters": {
+          "folderId": "PASTE_HEYGEN_WATCH_FOLDER_ID_HERE",
+          "includeSubfolders": false
+        },
+        "label": "Watch: HeyGen Downloads folder"
+      },
+      {
+        "id": 2,
+        "module": "builtin:SetVariable",
+        "metadata": {
+          "designer": { "x": 200, "y": 0 }
+        },
+        "parameters": {
+          "name": "datestamp",
+          "value": "{{formatDate(now; 'YYYY-MM-DD')}}"
+        },
+        "label": "Build datestamp"
+      },
+      {
+        "id": 3,
+        "module": "builtin:SetVariable",
+        "metadata": {
+          "designer": { "x": 400, "y": 0 }
+        },
+        "parameters": {
+          "name": "newFilename",
+          "value": "HEYGEN-{{2.datestamp}}-{{1.name}}"
+        },
+        "label": "Build new filename"
+      },
+      {
+        "id": 4,
+        "module": "google-drive:moveFile",
+        "metadata": {
+          "designer": { "x": 600, "y": 0 }
+        },
+        "parameters": {
+          "fileId": "{{1.id}}",
+          "newParentId": "PASTE_BOLD_UNSORTED_FOLDER_ID_HERE",
+          "newName": "{{3.newFilename}}"
+        },
+        "label": "Move to B.OLD — Unsorted Rolling Stock"
+      }
+    ],
+    "metadata": {
+      "version": 1
+    }
+  },
+  "setup_notes": {
+    "heygen_watch_folder": "Create a folder in Google Drive called 'HeyGen Downloads' at the root level or inside Terminal B. This is where you save HeyGen clips after generating them — NOT the final destination.",
+    "step_1": "Replace PASTE_HEYGEN_WATCH_FOLDER_ID_HERE with the ID of your 'HeyGen Downloads' watch folder.",
+    "step_2": "Replace PASTE_BOLD_UNSORTED_FOLDER_ID_HERE with the folder ID for 'B.OLD — Unsorted Rolling Stock'. Find it in folder-id-map.json (key: 'bOld').",
+    "step_3": "This is a safety net scenario. It catches HeyGen clips before they pile up in Drive root.",
+    "note": "After this scenario moves the file, manually move it from B.OLD to the correct B.02.[ID] > 02 HEYGEN ASSETS folder during your next working session.",
+    "test_instructions": "Upload a test file (any name) to the 'HeyGen Downloads' watch folder. Run the scenario. Verify the file appears in B.OLD with the HEYGEN-YYYY-MM-DD prefix. Delete the test file."
+  }
+}
