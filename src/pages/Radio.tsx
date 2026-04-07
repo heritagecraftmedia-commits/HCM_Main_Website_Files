@@ -51,7 +51,7 @@ export const Radio: React.FC = () => {
         <div className="mb-16">
           <h1 className="text-5xl md:text-7xl font-serif mb-6">Community <span className="italic text-brand-olive">Radio</span></h1>
           <p className="text-xl text-brand-ink/70 max-w-2xl">
-            Broadcasting local stories, producer spotlights, and the sounds of our community. Powered by Live365.
+            Broadcasting local stories, maker spotlights, and the sounds of our community. Powered by Live365.
           </p>
         </div>
 
@@ -77,7 +77,7 @@ export const Radio: React.FC = () => {
                     />
                   </div>
                   <div className="text-center md:text-left">
-                    <h2 className="text-4xl md:text-5xl font-serif mb-4">The Morning Harvest</h2>
+                    <h2 className="text-4xl md:text-5xl font-serif mb-4">The Craft Hour</h2>
                     <p className="text-brand-cream/60 text-lg mb-8">with Scott Andrew & Guests</p>
                     <div className="flex items-center justify-center md:justify-start gap-6">
                       <button className="w-20 h-20 rounded-full bg-brand-cream text-brand-ink flex items-center justify-center hover:scale-105 transition-transform">
@@ -167,8 +167,8 @@ export const Radio: React.FC = () => {
             <div className="bg-white rounded-[32px] p-8 border border-brand-olive/5">
               <h3 className="text-2xl font-serif mb-6">Broadcasting Info</h3>
               <div className="space-y-4 text-sm text-brand-ink/70">
-                <p>We broadcast 24/7 via Live365. Our programming is focused on local food, community stories, and inclusive education.</p>
-                <p>Want to host a show? We provide full training for stroke survivors and people with disabilities.</p>
+                <p>We broadcast 24/7 via Live365. Our programming is focused on craft stories, maker spotlights, and inclusive education.</p>
+                <p>Want to host a show? We welcome makers, crafters and independent creatives of all backgrounds.</p>
                 <button
                   onClick={() => { setShowApply(true); setApplyStatus('idle'); }}
                   className="text-brand-olive font-bold mt-4 underline underline-offset-4"
