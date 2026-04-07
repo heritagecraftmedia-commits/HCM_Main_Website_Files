@@ -18,18 +18,18 @@ export const Privacy: React.FC = () => {
                     <li>Register for a member account or directory listing.</li>
                     <li>Sign up for our newsletter or radio updates.</li>
                     <li>Submit a story, event, or feedback form.</li>
-                    <li>Interact with our marketplace or café services.</li>
+                    <li>Interact with our marketplace or digital services.</li>
                 </ul>
                 <p>This may include your name, business details, email address, social media handles, and location business hints.</p>
             </LegalSection>
 
             <LegalSection icon={<Lock size={20} />} title="2. How we use your data">
-                <p>Your data helps us build a better hub for Farnham. We use it to:</p>
+                <p>Your data helps us build a better platform for makers and crafters. We use it to:</p>
                 <ul className="list-disc pl-6 space-y-2">
-                    <li>Maintain and improve our Maker and Food Producer directories.</li>
+                    <li>Maintain and improve our Maker and Artisan directories.</li>
                     <li>Verify the authenticity of local artisans (keeping out mass-resellers).</li>
                     <li>Send you community updates you've opted into.</li>
-                    <li>Process payments for directory tiers via Stripe.</li>
+                    <li>Process payments for membership tiers via Stripe.</li>
                 </ul>
             </LegalSection>
 
