@@ -42,13 +42,22 @@ const fetchProfile = async (userId: string): Promise<{ role: UserRole; name: str
   };
 };
 
+const OWNER_EMAILS = [
+  'heritagecraftmedia@gmail.com',
+  'scottmarkandrew@gmail.com',
+  'junk2tip@gmail.com',
+  'scott@heritagecraftmedia.com',
+];
+
 const buildUser = async (supabaseUser: { id: string; email?: string | null }): Promise<User> => {
   const profile = await fetchProfile(supabaseUser.id);
+  const authEmail = supabaseUser.email ?? '';
+  const role: UserRole = OWNER_EMAILS.includes(authEmail) ? 'founder' : profile.role;
   return {
     id: supabaseUser.id,
-    name: profile.name || supabaseUser.email?.split('@')[0] || 'User',
-    email: supabaseUser.email || profile.email || '',
-    role: profile.role,
+    name: profile.name || authEmail.split('@')[0] || 'User',
+    email: authEmail || profile.email || '',
+    role,
   };
 };
 
