@@ -1,0 +1,4 @@
+{
+  "name": "HCM_Main_Website_Files — Heritage Craft Media ONLY",
+  "postStartCommand": "echo '' && echo '╔══════════════════════════════════════════╗' && echo '║   HCM ONLY CODESPACE — READ BEFORE USE  ║' && echo '╠══════════════════════════════════════════╣' && echo '║  Repo: HCM_Main_Website_Files            ║' && echo '║  Site: heritagecraftmedia.com            ║' && echo '║                                          ║' && echo '║  DO NOT open any other repo here.        ║' && echo '║  NO Farmers Table files.                 ║' && echo '║  NO Mad Professor files.                 ║' && echo '║  NO other project files.                 ║' && echo '╚══════════════════════════════════════════╝' && echo '' && git remote -v"
+}
