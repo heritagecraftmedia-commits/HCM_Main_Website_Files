@@ -19,10 +19,11 @@ export const DashboardRouter: React.FC = () => {
       navigate('/login', { replace: true });
       return;
     }
+    console.log('[DashboardRouter] user:', { role: user.role, email: user.email, name: user.name });
     const isOwner =
       user.role === 'founder' ||
       user.role === 'admin' ||
-      OWNER_EMAILS.includes(user.email);
+      OWNER_EMAILS.includes(user.email ?? '');
     if (isOwner) {
       navigate('/founder-dashboard', { replace: true });
     } else if (user.role === 'staff' || user.role === 'rep') {
