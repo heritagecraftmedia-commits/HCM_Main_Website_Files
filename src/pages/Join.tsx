@@ -119,7 +119,7 @@ export const Join: React.FC = () => {
                     </div>
                     <h3 className="text-4xl font-serif">Application Received!</h3>
                     <p className="text-xl text-brand-ink/60 max-w-md mx-auto">
-                      Our Office PA (Thalia) will review your details and get back to you within 48 hours to finalize your listing.
+                      Our team will review your details and get back to you within 48 hours to finalize your listing.
                     </p>
                     <button onClick={() => { setStep(1); setType('producer'); }} className="px-12 py-5 bg-brand-olive text-white rounded-full font-bold">
                       Back to Home

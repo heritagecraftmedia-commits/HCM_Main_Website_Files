@@ -176,7 +176,7 @@ export const Members: React.FC = () => {
             <h2 className="text-xl font-bold mb-4 text-brand-ink/70">Quick Links</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
-                { label: 'Food Directory', href: '/directory', desc: 'Browse all local producers' },
+                { label: 'Makers Directory', href: '/directory', desc: 'Browse all HCM makers' },
                 { label: 'What\'s On', href: '/whats-on', desc: 'Upcoming events and markets' },
                 { label: 'Resources', href: '/resources', desc: 'Guides and downloads' },
               ].map(link => (

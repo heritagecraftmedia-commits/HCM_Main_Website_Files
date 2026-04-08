@@ -3,7 +3,7 @@ import { MessageSquare, Send, CheckCircle2, Loader2, Quote } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../lib/supabase';
 
-const FEEDBACK_TYPES = ['General', 'Food Directory', 'Radio', 'Events', 'Website'];
+const FEEDBACK_TYPES = ['General', 'Makers & Crafts', 'Radio', 'Events', 'Website'];
 
 interface PublicFeedback {
   id: string;

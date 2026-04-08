@@ -128,7 +128,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const loginAsRole = (role: UserRole) => {
     if (role === 'founder') setUser({ id: '1', name: 'Scott', role: 'founder' });
-    else if (role === 'staff') setUser({ id: '2', name: 'Thalia', role: 'staff' });
+    else if (role === 'staff') setUser({ id: '2', name: 'Staff', role: 'staff' });
     else if (role === 'customer') setUser({ id: '3', name: 'Member', role: 'customer' });
   };
 

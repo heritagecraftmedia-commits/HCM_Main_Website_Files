@@ -76,7 +76,7 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({ onClose, onImpor
                     <div className="text-center py-12">
                         <Check size={48} className="text-green-500 mx-auto mb-4" />
                         <h3 className="text-xl font-serif mb-2">Import Complete</h3>
-                        <p className="text-brand-ink/50">{rows.length} records imported to {target === 'food' ? 'Food Directory' : 'Makers Hub'}</p>
+                        <p className="text-brand-ink/50">{rows.length} records imported to {target === 'food' ? 'Makers Directory' : 'Makers Hub'}</p>
                         <button onClick={onClose} className="mt-6 px-6 py-3 bg-brand-olive text-white rounded-full font-bold text-sm">Done</button>
                     </div>
                 ) : (
@@ -90,8 +90,8 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({ onClose, onImpor
                                     className={`flex-1 p-4 rounded-2xl border-2 text-left transition-all ${target === 'food' ? 'border-brand-olive bg-brand-olive/5' : 'border-brand-olive/10 hover:border-brand-olive/30'}`}
                                 >
                                     <span className="text-lg">🥬</span>
-                                    <p className="font-bold text-sm mt-1">Food Directory</p>
-                                    <p className="text-[11px] text-brand-ink/40">Farms, producers, food vendors</p>
+                                    <p className="font-bold text-sm mt-1">Makers Directory</p>
+                                    <p className="text-[11px] text-brand-ink/40">Artisans, craftspeople, makers</p>
                                 </button>
                                 <button
                                     onClick={() => setTarget('makers')}
@@ -171,7 +171,7 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({ onClose, onImpor
                                 className="w-full py-4 bg-brand-olive text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-olive/90 transition-all"
                             >
                                 <Upload size={18} />
-                                Import {rows.length} records to {target === 'food' ? 'Food Directory' : 'Makers Hub'}
+                                Import {rows.length} records to {target === 'food' ? 'Makers Directory' : 'Makers Hub'}
                             </button>
                         )}
                     </>
