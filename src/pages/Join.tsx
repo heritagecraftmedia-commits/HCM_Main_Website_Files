@@ -12,7 +12,7 @@ export const Join: React.FC = () => {
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-7xl font-serif mb-6">Join <span className="italic text-brand-olive">Heritage Craft Media</span></h1>
           <p className="text-xl text-brand-ink/70 max-w-2xl mx-auto">
-            Whether you're a local producer looking for visibility or a community member wanting to support our mission, we'd love to have you.
+            Whether you're an independent maker looking for visibility or a community member wanting to support our mission, we'd love to have you.
           </p>
         </div>
 
@@ -22,7 +22,7 @@ export const Join: React.FC = () => {
             onClick={() => { setType('producer'); setStep(1); }}
             className={`flex-1 py-4 rounded-full font-bold transition-all flex items-center justify-center gap-2 ${type === 'producer' ? 'bg-brand-olive text-white shadow-lg shadow-brand-olive/20' : 'text-brand-ink/50 hover:text-brand-ink'}`}
           >
-            <Store size={20} /> I'm a Producer
+            <Store size={20} /> I'm a Maker
           </button>
           <button 
             onClick={() => { setType('member'); setStep(1); }}
@@ -58,15 +58,17 @@ export const Join: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label className="text-sm font-bold uppercase tracking-widest opacity-50">Business Name</label>
-                        <input type="text" className="w-full p-4 rounded-2xl bg-brand-cream/50 border-none focus:ring-2 focus:ring-brand-olive/20" placeholder="e.g. Green Valley Farm" />
+                        <input type="text" className="w-full p-4 rounded-2xl bg-brand-cream/50 border-none focus:ring-2 focus:ring-brand-olive/20" placeholder="e.g. Oak & Ember Crafts" />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-bold uppercase tracking-widest opacity-50">Produce Type</label>
+                        <label className="text-sm font-bold uppercase tracking-widest opacity-50">Craft Type</label>
                         <select className="w-full p-4 rounded-2xl bg-brand-cream/50 border-none focus:ring-2 focus:ring-brand-olive/20">
-                          <option>Vegetables & Herbs</option>
-                          <option>Bread & Pastries</option>
-                          <option>Dairy & Eggs</option>
-                          <option>Meat & Poultry</option>
+                          <option>Wood & Furniture</option>
+                          <option>Textiles & Clothing</option>
+                          <option>Pottery & Ceramics</option>
+                          <option>Metal & Tools</option>
+                          <option>Heritage & Skills</option>
+                          <option>Other</option>
                         </select>
                       </div>
                       <div className="md:col-span-2 space-y-2">

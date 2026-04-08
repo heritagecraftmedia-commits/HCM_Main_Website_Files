@@ -1,9 +1,9 @@
 export type ListingTier = 'free' | 'supporter' | 'featured';
 
-export interface FoodVendor {
+export interface MakerProfile {
   id: string;
   name: string;
-  type: string;
+  craft: string;
   email: string;
   location: string;
   postcode: string;
@@ -55,8 +55,8 @@ export interface QualifiedLead {
 
 export interface EnrichedLead {
   id: string;
-  vendorName: string;
-  vendorType: string;
+  makerName: string;
+  makerType: string;
   craftCategory: string;
   location: string;
   website: string;
@@ -76,16 +76,16 @@ export interface OutreachLog {
   response?: string;
 }
 
-export interface ClaimedVendor {
+export interface ClaimedMaker {
   id: string;
   userId: string;
-  vendorProfile: any;
+  makerProfile: any;
   approved: boolean;
   published: boolean;
   claimedAt: string;
 }
 
-export type EventCategory = 'Wood & Furniture' | 'Textiles & Clothing' | 'Pottery & Ceramics' | 'Metal & Tools' | 'Heritage & Skills' | 'Workshops & Talks' | 'Food & Produce' | 'Community' | 'Other';
+export type CraftCategory = 'Wood & Furniture' | 'Textiles & Clothing' | 'Pottery & Ceramics' | 'Metal & Tools' | 'Heritage & Skills' | 'Workshops & Talks' | 'Food & Produce' | 'Community' | 'Other';
 
 export interface HubEvent {
   id: string;
@@ -96,7 +96,7 @@ export interface HubEvent {
   location: string;
   venue: string;
   websiteUrl: string;
-  craftType: EventCategory;
+  craftType: CraftCategory;
   source: string;
   approved: boolean;
   createdAt: string;
@@ -105,7 +105,7 @@ export interface HubEvent {
 export interface DirectoryListing {
   id: string;
   enrichedLeadId?: string;
-  vendorName: string;
+  makerName: string;
   craftCategory: string;
   location: string;
   bio: string;
@@ -118,7 +118,7 @@ export interface DirectoryListing {
   claimedAt: string;
   email?: string;
   phone?: string;
-  displayCategory: 'Meat' | 'Milk & Dairy' | 'Fruit & Veg' | 'Eggs & Poultry' | 'Mixed Farms' | 'Makers & Bakers' | 'Crafters';
+  displayCategory: 'Wood & Furniture' | 'Textiles & Clothing' | 'Pottery & Ceramics' | 'Metal & Tools' | 'Heritage & Skills' | 'Workshops & Talks' | 'Community' | 'Other';
   affiliateLinks?: { label: string; url: string }[];
 }
 
@@ -153,19 +153,18 @@ export interface MakerStory {
   makerName: string;
   craft: string;
   image: string;
-  q1: string; // How did you learn?
-  q2: string; // What tools?
-  q3: string; // Good making day?
+  q1: string;
+  q2: string;
+  q3: string;
   published: boolean;
 }
 
 export interface EventMakerLink {
   eventId: string;
   makerId: string;
-  makerName?: string; // Fallback for makers not yet in directory
+  makerName?: string;
 }
 
-// Update existing types with linkage hints
 export interface HubEventWithMakers extends HubEvent {
   attendingMakers?: DirectoryListing[];
 }

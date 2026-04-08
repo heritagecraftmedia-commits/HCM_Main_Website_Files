@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
 
 interface Listing {
   id: string;
-  vendor_name: string;
+  maker_name: string;
   craft_category: string;
   location: string;
   bio: string;
@@ -33,8 +33,8 @@ export const Members: React.FC = () => {
 
     // Check for claimed listing
     supabase
-      .from('claimed_vendors')
-      .select('id, vendor_name, craft_category, location, bio, website, approved, published')
+      .from('claimed_makers')
+      .select('id, maker_name, craft_category, location, bio, website, approved, published')
       .eq('user_id', user.id)
       .single()
       .then(({ data }) => {
@@ -44,7 +44,7 @@ export const Members: React.FC = () => {
 
     // Check for pending application
     supabase
-      .from('producer_applications')
+      .from('maker_applications')
       .select('id, business_name, status, created_at')
       .eq('email', user.id) // best effort — email not on user obj; fall back to show nothing
       .limit(1)
@@ -101,7 +101,7 @@ export const Members: React.FC = () => {
               >
                 <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
                   <div>
-                    <h3 className="text-2xl font-serif mb-1">{listing.vendor_name}</h3>
+                    <h3 className="text-2xl font-serif mb-1">{listing.maker_name}</h3>
                     <p className="text-sm text-brand-ink/50">{listing.craft_category} · {listing.location}</p>
                   </div>
                   <div className="flex gap-2 flex-wrap">

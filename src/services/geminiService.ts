@@ -146,7 +146,7 @@ Return plain text only.`;
 
 // ── OUTREACH AGENT ──
 export const draftOutreachMessage = async (
-  vendorName: string,
+  makerName: string,
   craftCategory: string,
   location: string
 ): Promise<string> => {
@@ -155,7 +155,7 @@ export const draftOutreachMessage = async (
 Write a short, respectful invitation message for a maker to be featured in our community media.
 
 Maker details:
-- Name: "${vendorName}"
+- Name: "${makerName}"
 - Craft: "${craftCategory}"
 - Area: "${location}"
 
@@ -175,9 +175,9 @@ Return the message text only. No subject line.`;
       model: "gemini-2.0-flash",
       contents: [{ parts: [{ text: prompt }] }],
     });
-    return response.text?.trim() || `Hello ${vendorName}, we'd love to invite you to be featured with Heritage Craft Media. It's free, optional, and celebrates local makers. Visit {{CLAIM_LINK}} to learn more.`;
+    return response.text?.trim() || `Hello ${makerName}, we'd love to invite you to be featured with Heritage Craft Media. It's free, optional, and celebrates local makers. Visit {{CLAIM_LINK}} to learn more.`;
   } catch (error) {
     console.error("Outreach Agent error:", error);
-    return `Hello ${vendorName}, we'd love to invite you to be featured with Heritage Craft Media. It's free, optional, and celebrates local makers. Visit {{CLAIM_LINK}} to learn more.`;
+    return `Hello ${makerName}, we'd love to invite you to be featured with Heritage Craft Media. It's free, optional, and celebrates local makers. Visit {{CLAIM_LINK}} to learn more.`;
   }
 };
