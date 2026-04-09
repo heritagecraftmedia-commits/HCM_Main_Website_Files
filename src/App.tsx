@@ -5,7 +5,6 @@ import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { Home } from './pages/Home';
 import { About } from './pages/About';
-import { Radio } from './pages/Radio';
 import { Resources } from './pages/Resources';
 import { Members } from './pages/Members';
 import { Feedback } from './pages/Feedback';
@@ -21,9 +20,12 @@ import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
 import { Notes } from './pages/Notes';
 import { DraftSpace } from './pages/DraftSpace';
-import { Join } from './pages/Join';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AnimatePresence, motion } from 'motion/react';
+import Academy from './pages/Academy';
+import Services from './pages/Services';
+import FreeResources from './pages/FreeResources';
+import GetStarted from './pages/GetStarted';
 
 const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
@@ -52,9 +54,11 @@ export default function App() {
             <Routes>
               <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
               <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
-              <Route path="/radio" element={<PageWrapper><Radio /></PageWrapper>} />
+              <Route path="/academy" element={<PageWrapper><Academy /></PageWrapper>} />
+              <Route path="/services" element={<PageWrapper><Services /></PageWrapper>} />
               <Route path="/resources" element={<PageWrapper><Resources /></PageWrapper>} />
-              <Route path="/join" element={<PageWrapper><Join /></PageWrapper>} />
+              <Route path="/free-resources" element={<PageWrapper><FreeResources /></PageWrapper>} />
+              <Route path="/get-started" element={<PageWrapper><GetStarted /></PageWrapper>} />
               <Route path="/members" element={<ProtectedRoute><PageWrapper><Members /></PageWrapper></ProtectedRoute>} />
               <Route path="/feedback" element={<PageWrapper><Feedback /></PageWrapper>} />
               <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
@@ -63,8 +67,8 @@ export default function App() {
               <Route path="/update-password" element={<PageWrapper><UpdatePassword /></PageWrapper>} />
               <Route path="/dashboard" element={<ProtectedRoute><PageWrapper><DashboardRouter /></PageWrapper></ProtectedRoute>} />
               <Route path="/founder-dashboard" element={<ProtectedRoute allowedRoles={['founder', 'admin']}><PageWrapper><FounderDashboard /></PageWrapper></ProtectedRoute>} />
-              <Route path="/staffdashboard" element={<ProtectedRoute allowedRoles={['founder', 'admin', 'staff', 'rep']}><PageWrapper><StaffDashboard /></PageWrapper></ProtectedRoute>} />
-              <Route path="/studentdashboard" element={<ProtectedRoute allowedRoles={['founder', 'admin', 'staff', 'rep', 'student', 'client', 'customer']}><PageWrapper><StudentDashboard /></PageWrapper></ProtectedRoute>} />
+              <Route path="/staffdashboard" element={<ProtectedRoute allowedRoles={['founder', 'admin', 'staff']}><PageWrapper><StaffDashboard /></PageWrapper></ProtectedRoute>} />
+              <Route path="/studentdashboard" element={<ProtectedRoute allowedRoles={['founder', 'admin', 'staff', 'student', 'client']}><PageWrapper><StudentDashboard /></PageWrapper></ProtectedRoute>} />
               <Route path="/notes" element={<ProtectedRoute allowedRoles={['founder', 'admin']}><PageWrapper><Notes /></PageWrapper></ProtectedRoute>} />
               <Route path="/draft" element={<ProtectedRoute allowedRoles={['founder', 'admin']}><PageWrapper><DraftSpace /></PageWrapper></ProtectedRoute>} />
               <Route path="/privacy" element={<PageWrapper><Privacy /></PageWrapper>} />

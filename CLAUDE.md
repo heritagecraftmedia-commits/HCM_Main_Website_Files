@@ -36,8 +36,15 @@ Do not add new routes, components, files or features unless explicitly asked.
 - HCM Founder Dashboard (/founder-dashboard)
 - HCM member and auth pages
 
+## IMPORTANT — The Farmers Table Hub CIC relationship
+The Farmers Table Hub CIC (TFT) is a SEPARATE CUSTOMER of Heritage Craft Media.
+HCM builds and manages the TFT website as a client project.
+TFT has its own Vercel project: the-farmers-table-hub-cic — DO NOT touch it from this repo.
+TFT content must NEVER appear inside the HCM website src/ files.
+These are two completely separate websites for two separate organisations.
+
 ## What does NOT belong here
-- Farmers Table Hub CIC — any content whatsoever
+- Farmers Table Hub CIC content inside src/ (it is a customer, not part of HCM)
 - Mad Professor Safety System files
 - Junk2Tip files
-- Any other client or project files
+- Any other client project files mixed into HCM src/

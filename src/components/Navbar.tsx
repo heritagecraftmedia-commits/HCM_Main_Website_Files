@@ -9,42 +9,42 @@ export const Navbar: React.FC = () => {
   const { user } = useAuth();
   const location = useLocation();
 
-  const navLinks = [
-    { name: 'Home', path: '/' },
+  const desktopLinks = [
+    { name: 'Academy', path: '/academy' },
+    { name: 'Services', path: '/services' },
+    { name: 'Resources', path: '/free-resources' },
     { name: 'About', path: '/about' },
-    { name: 'Radio', path: '/radio' },
-    { name: 'Resources', path: '/resources' },
-    { name: 'Join', path: '/join' },
-    { name: 'Members', path: '/members' },
-    { name: 'Feedback', path: '/feedback' },
   ];
 
-  const visibleLinks = [
+  const allMenuLinks = [
+    { name: 'Home', path: '/' },
+    { name: 'Academy', path: '/academy' },
+    { name: 'Services', path: '/services' },
+    { name: 'Free Resources', path: '/free-resources' },
     { name: 'About', path: '/about' },
-    { name: 'Radio', path: '/radio' },
-    { name: 'Resources', path: '/resources' },
+    { name: 'Get Started', path: '/get-started' },
   ];
 
   return (
     <nav className="bg-brand-cream border-b border-brand-olive/20 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center gap-2">
-              <span className="font-serif text-xl md:text-2xl font-bold text-brand-olive tracking-tight">
-                Heritage Craft Media
-              </span>
-            </Link>
-          </div>
+          <Link to="/" className="flex items-center gap-2">
+            <span className="font-serif text-xl md:text-2xl font-bold text-brand-olive tracking-tight">
+              Heritage Craft Media
+            </span>
+          </Link>
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center space-x-6">
-            {visibleLinks.map((link) => (
+            {desktopLinks.map((link) => (
               <Link
                 key={link.name}
                 to={link.path}
                 className={`text-sm font-bold transition-colors hover:text-brand-olive ${
-                  location.pathname === link.path ? 'text-brand-olive underline underline-offset-8' : 'text-brand-ink/70'
+                  location.pathname === link.path
+                    ? 'text-brand-olive underline underline-offset-8'
+                    : 'text-brand-ink/70'
                 }`}
               >
                 {link.name}
@@ -60,10 +60,10 @@ export const Navbar: React.FC = () => {
               </Link>
             ) : (
               <Link
-                to="/login"
+                to="/get-started"
                 className="flex items-center gap-2 px-5 py-2.5 bg-brand-olive text-white rounded-full text-sm font-bold hover:bg-brand-olive/90 transition-all"
               >
-                <LogIn size={16} /> Sign In
+                Get Started
               </Link>
             )}
 
@@ -79,11 +79,17 @@ export const Navbar: React.FC = () => {
           {/* Mobile Nav Toggle */}
           <div className="flex md:hidden items-center gap-3">
             {user ? (
-              <Link to="/dashboard" className="flex items-center gap-1 px-4 py-2 bg-brand-olive text-white rounded-full text-sm font-bold">
+              <Link
+                to="/dashboard"
+                className="flex items-center gap-1 px-4 py-2 bg-brand-olive text-white rounded-full text-sm font-bold"
+              >
                 <LayoutDashboard size={14} /> Dashboard
               </Link>
             ) : (
-              <Link to="/login" className="flex items-center gap-1 px-4 py-2 bg-brand-olive text-white rounded-full text-sm font-bold">
+              <Link
+                to="/login"
+                className="flex items-center gap-1 px-4 py-2 bg-brand-olive text-white rounded-full text-sm font-bold"
+              >
                 <LogIn size={14} /> Sign In
               </Link>
             )}
@@ -109,13 +115,15 @@ export const Navbar: React.FC = () => {
           >
             <div className="max-w-7xl mx-auto px-4 py-8">
               <div className="grid grid-cols-1 gap-2 mb-8">
-                {navLinks.map((link) => (
+                {allMenuLinks.map((link) => (
                   <Link
                     key={link.name}
                     to={link.path}
                     onClick={() => setIsOpen(false)}
                     className={`text-lg font-bold py-3 px-4 rounded-2xl transition-all hover:bg-brand-olive/10 ${
-                      location.pathname === link.path ? 'text-brand-olive bg-brand-olive/5' : 'text-brand-ink'
+                      location.pathname === link.path
+                        ? 'text-brand-olive bg-brand-olive/5'
+                        : 'text-brand-ink'
                     }`}
                   >
                     {link.name}
@@ -123,16 +131,18 @@ export const Navbar: React.FC = () => {
                 ))}
               </div>
               <div className="border-t border-brand-olive/10 pt-6">
-                <p className="text-sm font-bold text-brand-ink/40 uppercase tracking-widest mb-3">Heritage Craft Media</p>
+                <p className="text-sm font-bold text-brand-ink/40 uppercase tracking-widest mb-3">
+                  Heritage Craft Media
+                </p>
                 <p className="text-sm text-brand-ink/60 leading-relaxed">
-                  Celebrating makers, heritage crafts, and community through storytelling, radio, and media.
+                  Helping craft businesses grow through media, education, and digital strategy.
                 </p>
                 <Link
-                  to="/join"
+                  to="/get-started"
                   onClick={() => setIsOpen(false)}
                   className="inline-block mt-4 px-6 py-3 bg-brand-olive text-white rounded-full font-bold text-sm"
                 >
-                  Join the Community
+                  Get Started
                 </Link>
               </div>
             </div>

@@ -46,3 +46,59 @@ Format: `[Date] | Phase | Action | Status`
 ---
 
 _Log maintained by Claude Code. Last updated: 2026-04-07_
+
+---
+
+## Brain + Brawn System — Phase 1 Foundation
+
+| Date | Phase | Action | Status |
+|------|-------|--------|--------|
+| 2026-04-08 | BB-Phase 1 | Created `master-system.md` — Brain+Brawn workflow explanation | ✅ Done |
+| 2026-04-08 | BB-Phase 1 | Created `master-tasks.md` — task queue with template and example task | ✅ Done |
+| 2026-04-08 | BB-Phase 1 | Created `master-folders.json` — Drive folder ID placeholder | ✅ Done |
+| 2026-04-08 | BB-Phase 1 | Preserved and appended `actions-log.md` — did not overwrite | ✅ Done |
+
+_Log maintained by Claude Code. Last updated: 2026-04-08_
+
+---
+
+## Brain + Brawn System — Phase 2 Aider Workflow
+
+| Date | Phase | Action | Status |
+|------|-------|--------|--------|
+| 2026-04-08 | BB-Phase 2 | Created `run-task.sh` — launches Aider with task context, one task at a time | ✅ Done |
+| 2026-04-08 | BB-Phase 2 | Added Brain+Brawn section to `README.md` — usage instructions and prerequisites | ✅ Done |
+
+---
+
+## Brain + Brawn System — Phase 3 Task Execution Template
+
+| Date | Phase | Action | Status |
+|------|-------|--------|--------|
+| 2026-04-08 | BB-Phase 3 | Created `task-guide.md` — full Manus→paste→execute loop with Manus prompt template | ✅ Done |
+| 2026-04-08 | BB-Phase 3 | Updated `master-tasks.md` — added Files affected field to template, linked to task-guide.md | ✅ Done |
+| 2026-04-08 | BB-Phase 3 | Updated TASK-001 — added Files affected field, tightened instructions | ✅ Done |
+
+---
+
+## Brain + Brawn System — Phase 4 Safety + Constraints
+
+| Date | Phase | Action | Status |
+|------|-------|--------|--------|
+| 2026-04-08 | BB-Phase 4 | Updated `run-task.sh` — added 4 pre-flight safety checks (Aider installed, files exist, pending task exists, no task already running) | ✅ Done |
+| 2026-04-08 | BB-Phase 4 | Updated `run-task.sh` — added pre-flight log entry, y/n confirm prompt, post-run log entry | ✅ Done |
+| 2026-04-08 | BB-Phase 4 | Updated `run-task.sh` — Aider prompt now includes all 8 safety rules (BLOCKED/QUESTION outputs, append-only log, files-affected constraint) | ✅ Done |
+| 2026-04-08 | BB-Phase 4 | Updated `master-system.md` — Rules section expanded to full safety table with 7 enforced rules | ✅ Done |
+
+---
+
+## Brain + Brawn System — Phase 5 Automation Hooks (Placeholders)
+
+| Date | Phase | Action | Status |
+|------|-------|--------|--------|
+| 2026-04-08 | BB-Phase 5 | Created `automation/google-drive.md` — Drive filing hook placeholder with checklist and config block | ✅ Done |
+| 2026-04-08 | BB-Phase 5 | Created `automation/supabase-logging.md` — Supabase task_log hook placeholder with table schema | ✅ Done |
+| 2026-04-08 | BB-Phase 5 | Created `automation/make-triggers.md` — Make.com webhook placeholder with payload spec and existing scenario map | ✅ Done |
+| 2026-04-08 | BB-Phase 5 | Updated `master-system.md` — Expansion Points section now links to all three automation placeholders | ✅ Done |
+
+_Log maintained by Claude Code. Last updated: 2026-04-08_

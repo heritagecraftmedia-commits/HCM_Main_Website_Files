@@ -1,29 +1,4 @@
-export type ListingTier = 'free' | 'supporter' | 'featured';
-
-export interface MakerProfile {
-  id: string;
-  name: string;
-  craft: string;
-  email: string;
-  location: string;
-  postcode: string;
-  website: string;
-  rating: number;
-  phone: string;
-  tier: ListingTier;
-}
-
-export interface MakerListing {
-  id: string;
-  name: string;
-  craft: string;
-  businessName: string;
-  instagram: string;
-  instagramUrl: string;
-  tier: ListingTier;
-}
-
-export type UserRole = 'founder' | 'admin' | 'staff' | 'rep' | 'student' | 'client' | 'customer' | null;
+export type UserRole = 'founder' | 'admin' | 'staff' | 'student' | 'client' | null;
 
 export interface User {
   id: string;
@@ -32,143 +7,190 @@ export interface User {
   role: UserRole;
 }
 
-export interface RawLead {
-  id: string;
-  sourcePlatform: string;
-  profileUrl: string;
-  displayName: string;
-  bioText: string;
-  locationHint: string;
-  categoryHint: string;
-  discoveredAt: string;
-}
+export type CraftCategory =
+  | 'Woodworking'
+  | 'Textiles'
+  | 'Ceramics'
+  | 'Metalwork'
+  | 'Heritage Skills'
+  | 'Digital Craft'
+  | 'Other';
 
-export interface QualifiedLead {
-  id: string;
-  rawLeadId: string;
-  artisanScore: number;
-  qualificationNotes: string;
-  qualified: boolean;
-  reviewed: boolean;
-  createdAt: string;
-}
-
-export interface EnrichedLead {
-  id: string;
-  makerName: string;
-  makerType: string;
-  craftCategory: string;
-  location: string;
-  website: string;
-  publicEmail: string;
-  socialLinks: Record<string, string>;
-  summary: string;
-  status: 'draft' | 'invited' | 'claimed';
-  createdAt: string;
-}
-
-export interface OutreachLog {
-  id: string;
-  enrichedLeadId: string;
-  contactMethod: string;
-  messageSent: string;
-  sentAt: string;
-  response?: string;
-}
-
-export interface ClaimedMaker {
-  id: string;
-  userId: string;
-  makerProfile: any;
-  approved: boolean;
-  published: boolean;
-  claimedAt: string;
-}
-
-export type CraftCategory = 'Wood & Furniture' | 'Textiles & Clothing' | 'Pottery & Ceramics' | 'Metal & Tools' | 'Heritage & Skills' | 'Workshops & Talks' | 'Food & Produce' | 'Community' | 'Other';
-
-export interface HubEvent {
+export interface Course {
   id: string;
   title: string;
   description: string;
-  startDate: string;
-  endDate: string;
-  location: string;
-  venue: string;
-  websiteUrl: string;
-  craftType: CraftCategory;
-  source: string;
-  approved: boolean;
+  craftCategory: CraftCategory;
+  instructor: string;
+  thumbnailUrl: string;
+  videoUrl?: string;
+  price: number;
+  isFree: boolean;
+  published: boolean;
   createdAt: string;
 }
 
-export interface DirectoryListing {
+export interface Lesson {
   id: string;
-  enrichedLeadId?: string;
-  makerName: string;
-  craftCategory: string;
-  location: string;
-  bio: string;
-  website: string;
-  socialLinks: Record<string, string>;
-  listingTier: 'free' | 'supporter' | 'featured';
-  featuredUntil?: string;
-  approved: boolean;
+  courseId: string;
+  title: string;
+  description: string;
+  videoUrl: string;
+  transcript?: string;
+  order: number;
+  durationSeconds?: number;
   published: boolean;
-  claimedAt: string;
-  email?: string;
-  phone?: string;
-  displayCategory: 'Wood & Furniture' | 'Textiles & Clothing' | 'Pottery & Ceramics' | 'Metal & Tools' | 'Heritage & Skills' | 'Workshops & Talks' | 'Community' | 'Other';
-  affiliateLinks?: { label: string; url: string }[];
 }
 
-export interface StaffMember {
+export interface Enrollment {
+  id: string;
+  userId: string;
+  courseId: string;
+  enrolledAt: string;
+  completedAt?: string;
+  progress: number;
+}
+
+export interface Progress {
+  id: string;
+  userId: string;
+  lessonId: string;
+  courseId: string;
+  completedAt: string;
+  watchedSeconds: number;
+}
+
+export interface ServiceInquiry {
   id: string;
   name: string;
-  role: string;
   email: string;
-  status: 'active' | 'on-leave' | 'inactive';
-  joinedAt: string;
+  phone?: string;
+  serviceType: ServiceType;
+  message: string;
+  status: 'new' | 'contacted' | 'quoted' | 'active' | 'closed';
+  createdAt: string;
 }
 
-export interface RadioShow {
+export type ServiceType =
+  | 'social_media'
+  | 'video_production'
+  | 'website'
+  | 'branding'
+  | 'photography'
+  | 'custom_strategy'
+  | 'other';
+
+export interface ClientOnboarding {
+  id: string;
+  clientName: string;
+  email: string;
+  businessName: string;
+  serviceType: ServiceType;
+  goals: string;
+  currentPlatforms: string[];
+  budget?: string;
+  status: 'pending' | 'in_progress' | 'complete';
+  createdAt: string;
+}
+
+export interface FreeResource {
   id: string;
   title: string;
-  host: string;
-  schedule: string;
-  status: 'live' | 'pre-recorded' | 'planned';
-  lastBroadcast?: string;
-}
-
-export interface FounderJob {
-  id: string;
-  task: string;
-  priority: 'High' | 'Medium' | 'Low';
-  status: 'pending' | 'completed';
-  dueDate?: string;
-}
-
-export interface MakerStory {
-  id: string;
-  makerName: string;
-  craft: string;
-  image: string;
-  q1: string;
-  q2: string;
-  q3: string;
+  description: string;
+  fileUrl: string;
+  category: 'guide' | 'template' | 'checklist' | 'video' | 'other';
+  craftCategory?: CraftCategory;
+  downloadCount: number;
   published: boolean;
+  createdAt: string;
 }
 
-export interface EventMakerLink {
-  eventId: string;
-  makerId: string;
-  makerName?: string;
+export interface GeneratedContent {
+  id: string;
+  userId?: string;
+  contentType: 'social_bio' | 'welcome_post' | 'promo' | 'username' | 'other';
+  title: string;
+  content: string;
+  status: 'draft' | 'approved' | 'published';
+  createdAt: string;
 }
 
-export interface HubEventWithMakers extends HubEvent {
-  attendingMakers?: DirectoryListing[];
+export interface SocialMediaAccount {
+  id: string;
+  userId: string;
+  platform: 'instagram' | 'facebook' | 'tiktok' | 'youtube' | 'linkedin' | 'other';
+  handle: string;
+  profileUrl: string;
+  followers?: number;
+  connected: boolean;
 }
 
-export interface MakerWithEvents extends DirectoryListing {
-  upcomingEvents?: HubEvent[];
+export interface ContactInquiry {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: 'new' | 'read' | 'replied';
+  createdAt: string;
+}
+
+export interface SetupTask {
+  id: string;
+  userId: string;
+  title: string;
+  description: string;
+  category: 'profile' | 'social' | 'payment' | 'course' | 'branding' | 'other';
+  completed: boolean;
+  order: number;
+}
+
+export interface SetupProgress {
+  id: string;
+  userId: string;
+  totalTasks: number;
+  completedTasks: number;
+  percentComplete: number;
+  lastUpdated: string;
+}
+
+export interface APICredentials {
+  id: string;
+  userId: string;
+  service: string;
+  label: string;
+  connected: boolean;
+  createdAt: string;
+}
+
+export interface AutomationLog {
+  id: string;
+  functionName: string;
+  status: 'success' | 'error';
+  message: string;
+  triggeredAt: string;
+}
+
+export interface EnergyLog {
+  id: string;
+  userId: string;
+  date: string;
+  level: 1 | 2 | 3 | 4 | 5;
+  notes?: string;
+}
+
+export interface SessionNotes {
+  id: string;
+  clientId: string;
+  date: string;
+  notes: string;
+  nextSteps: string;
+  createdBy: string;
+}
+
+export interface GlobalSettings {
+  id: string;
+  key: string;
+  value: string;
+  updatedAt: string;
 }

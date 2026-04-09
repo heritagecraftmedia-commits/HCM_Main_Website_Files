@@ -12,3 +12,9 @@ coverage/
 hcm-drive-setup/credentials.json
 hcm-drive-setup/token.json
 hcm-drive-setup/folder-id-map.json
+
+# Separate project — has its own repo
+heritage-craft-media/
+
+# Local IDE settings
+.claude/

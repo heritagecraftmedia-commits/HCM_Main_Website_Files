@@ -23,7 +23,6 @@
  */
 
 import { google } from 'googleapis';
-import { authenticate } from '@google-cloud/local-auth';
 import { writeFileSync, existsSync, readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -38,7 +37,6 @@ const DRIVE_ROOT_FOLDER_ID = '';
 const CREDENTIALS_PATH = join(__dirname, 'credentials.json');
 const TOKEN_PATH = join(__dirname, 'token.json');
 const OUTPUT_PATH = join(__dirname, 'folder-id-map.json');
-const SCOPES = ['https://www.googleapis.com/auth/drive'];
 // ───────────────────────────────────────────────────────────────────────────
 
 /**
@@ -160,33 +158,71 @@ function buildCourseSlots(count) {
   return slots;
 }
 
-// ─── AUTH ───────────────────────────────────────────────────────────────────
-async function loadSavedCredentialsIfExist() {
-  if (!existsSync(TOKEN_PATH)) return null;
-  const content = readFileSync(TOKEN_PATH);
-  const credentials = JSON.parse(content);
-  return google.auth.fromJSON(credentials);
-}
-
-async function saveCredentials(client) {
-  const content = readFileSync(CREDENTIALS_PATH);
-  const keys = JSON.parse(content);
-  const key = keys.installed || keys.web;
-  const payload = JSON.stringify({
-    type: 'authorized_user',
-    client_id: key.client_id,
-    client_secret: key.client_secret,
-    refresh_token: client.credentials.refresh_token,
-  });
-  writeFileSync(TOKEN_PATH, payload);
-}
-
+// ─── AUTH (Codespace-compatible — uses refresh token from token.json) ────────
 async function authorize() {
-  let client = await loadSavedCredentialsIfExist();
-  if (client) return client;
-  client = await authenticate({ scopes: SCOPES, keyfilePath: CREDENTIALS_PATH });
-  if (client.credentials) await saveCredentials(client);
-  return client;
+  const keys = JSON.parse(readFileSync(CREDENTIALS_PATH));
+  const key = keys.installed || keys.web;
+
+  if (!existsSync(TOKEN_PATH)) {
+    console.log('\n' + '='.repeat(60));
+    console.log('🔐 ONE-TIME SETUP — Get your refresh token');
+    console.log('='.repeat(60));
+    console.log(`
+Follow these steps once in your browser:
+
+1. Go to: https://developers.google.com/oauthplayground/
+
+2. Click the ⚙️ gear icon (top right) → tick:
+      "Use your own OAuth credentials"
+   Enter:
+      Client ID:     ${key.client_id}
+      Client secret: ${key.client_secret}
+   Click Close.
+
+3. In the left panel, find "Drive API v3"
+   Tick: https://www.googleapis.com/auth/drive
+   Click "Authorise APIs"
+
+4. Sign in as heritagecraftmedia@gmail.com and grant access.
+
+5. Click "Exchange authorization code for tokens"
+
+6. Copy the "Refresh token" value.
+
+7. Create a file: hcm-drive-setup/token.json with this content:
+   {
+     "refresh_token": "PASTE_REFRESH_TOKEN_HERE"
+   }
+
+Then re-run: node phase1-create-folders.js
+`);
+    process.exit(0);
+  }
+
+  const saved = JSON.parse(readFileSync(TOKEN_PATH));
+  const refreshToken = saved.refresh_token;
+
+  if (!refreshToken || refreshToken === 'PASTE_REFRESH_TOKEN_HERE') {
+    console.error('\n❌ token.json found but refresh_token is not set.');
+    console.error('   Follow the setup instructions above and paste a real refresh token.\n');
+    process.exit(1);
+  }
+
+  const oauth2 = new google.auth.OAuth2(key.client_id, key.client_secret);
+  oauth2.setCredentials({ refresh_token: refreshToken });
+
+  // Verify the token works before proceeding
+  try {
+    await oauth2.getAccessToken();
+    console.log('  ✅ Auth OK\n');
+  } catch (err) {
+    console.error('\n❌ Auth failed:', err.message);
+    console.error('   Your refresh token may be invalid or expired.');
+    console.error('   Re-run the OAuth Playground steps and replace token.json.\n');
+    process.exit(1);
+  }
+
+  return oauth2;
 }
 
 // ─── DRIVE HELPERS ──────────────────────────────────────────────────────────

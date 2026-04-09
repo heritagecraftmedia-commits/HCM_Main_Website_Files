@@ -1,0 +1,18 @@
+{
+  "_note": "Google Drive folder IDs for HCM automation. Populated once Drive folders are confirmed.",
+  "_status": "placeholder — not yet connected",
+  "hcm_root": "",
+  "sections": {
+    "01_content_studio": "",
+    "02_client_projects": "",
+    "03_academy": "",
+    "04_finance": "",
+    "05_operations": "",
+    "06_archive": ""
+  },
+  "automation": {
+    "make_com_webhook": "",
+    "supabase_table": "",
+    "aider_output_folder": ""
+  }
+}

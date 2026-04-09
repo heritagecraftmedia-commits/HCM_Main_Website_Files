@@ -42,6 +42,50 @@ Heritage Craft Media (HCM) is a digital media and education platform supporting 
    npm run dev
    ```
 
+## Brain + Brawn Workflow (AI Development System)
+
+This repo uses a two-part AI system for structured development:
+
+- **Brain (Manus AI)** — creates plans and task breakdowns
+- **Brawn (Aider)** — reads those plans and executes them inside the repo
+
+### How it works
+
+1. Ask Manus for a plan
+2. Paste the task into `master-tasks.md` using the template inside that file
+3. Run the task runner:
+   ```bash
+   bash run-task.sh
+   ```
+4. Aider reads the first `pending` task, executes it, and logs the result
+5. Review `actions-log.md` to confirm what changed
+
+### Key files
+
+| File | Purpose |
+|------|---------|
+| `master-tasks.md` | Task queue — paste Manus plans here |
+| `master-system.md` | Full system documentation |
+| `master-folders.json` | Google Drive folder ID placeholders |
+| `actions-log.md` | Append-only log of all actions |
+| `run-task.sh` | Launches Aider with the right context |
+
+### Prerequisites for Aider
+
+```bash
+pip install aider-chat
+```
+
+Set your API key before running:
+
+```bash
+export ANTHROPIC_API_KEY=your_key_here
+# or
+export OPENAI_API_KEY=your_key_here
+```
+
+---
+
 ## Contact
 
 heritagecraftmedia@gmail.com
