@@ -63,13 +63,18 @@ const QUICK_PROMPTS = [
 ];
 async function callClaude(prompt: string): Promise<string> {
   try {
-    const { data, error } = await supabase.functions.invoke('hcm-chat', {
-      body: { message: prompt },
+    const response = await fetch('/api/generate-summary', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt }),
     });
-    if (error) throw error;
-    return data?.reply ?? 'No response.';
-  } catch {
-    return 'Could not reach Claude. Check your API setup in Settings.';
+    const data = await response.json();
+    if (!response.ok) {
+      return `Claude error: ${data.error || 'Unknown error'}`;
+    }
+    return data.text ?? 'No response.';
+  } catch (err) {
+    return `Could not reach Claude: ${err.message}`;
   }
 }
 // ─── Section 1: Dashboard ─────────────────────────────────────────────────────
