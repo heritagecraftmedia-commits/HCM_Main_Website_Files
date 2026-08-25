@@ -13,6 +13,7 @@ export const Navbar: React.FC = () => {
     { name: 'Academy', path: '/academy' },
     { name: 'Services', path: '/services' },
     { name: 'Resources', path: '/free-resources' },
+    { name: 'Merchandise', path: '/merchandise' },
     { name: 'About', path: '/about' },
   ];
 
@@ -21,6 +22,7 @@ export const Navbar: React.FC = () => {
     { name: 'Academy', path: '/academy' },
     { name: 'Services', path: '/services' },
     { name: 'Free Resources', path: '/free-resources' },
+    { name: 'Merchandise', path: '/merchandise' },
     { name: 'About', path: '/about' },
     { name: 'Get Started', path: '/get-started' },
   ];
@@ -35,7 +37,6 @@ export const Navbar: React.FC = () => {
             </span>
           </Link>
 
-          {/* Desktop Nav */}
           <div className="hidden md:flex items-center space-x-6">
             {desktopLinks.map((link) => (
               <Link
@@ -67,44 +68,28 @@ export const Navbar: React.FC = () => {
               </Link>
             )}
 
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-xl text-brand-ink/70 hover:bg-brand-olive/10 transition-colors"
-              aria-label="Menu"
-            >
+            <button onClick={() => setIsOpen(!isOpen)} className="p-2 rounded-xl text-brand-ink/70 hover:bg-brand-olive/10 transition-colors" aria-label="Menu">
               {isOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
 
-          {/* Mobile Nav Toggle */}
           <div className="flex md:hidden items-center gap-3">
             {user ? (
-              <Link
-                to="/dashboard"
-                className="flex items-center gap-1 px-4 py-2 bg-brand-olive text-white rounded-full text-sm font-bold"
-              >
+              <Link to="/dashboard" className="flex items-center gap-1 px-4 py-2 bg-brand-olive text-white rounded-full text-sm font-bold">
                 <LayoutDashboard size={14} /> Dashboard
               </Link>
             ) : (
-              <Link
-                to="/login"
-                className="flex items-center gap-1 px-4 py-2 bg-brand-olive text-white rounded-full text-sm font-bold"
-              >
+              <Link to="/login" className="flex items-center gap-1 px-4 py-2 bg-brand-olive text-white rounded-full text-sm font-bold">
                 <LogIn size={14} /> Sign In
               </Link>
             )}
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-xl text-brand-ink/70 hover:bg-brand-olive/10 transition-colors"
-              aria-label="Menu"
-            >
+            <button onClick={() => setIsOpen(!isOpen)} className="p-2 rounded-xl text-brand-ink/70 hover:bg-brand-olive/10 transition-colors" aria-label="Menu">
               {isOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Full-screen menu */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -121,9 +106,7 @@ export const Navbar: React.FC = () => {
                     to={link.path}
                     onClick={() => setIsOpen(false)}
                     className={`text-lg font-bold py-3 px-4 rounded-2xl transition-all hover:bg-brand-olive/10 ${
-                      location.pathname === link.path
-                        ? 'text-brand-olive bg-brand-olive/5'
-                        : 'text-brand-ink'
+                      location.pathname === link.path ? 'text-brand-olive bg-brand-olive/5' : 'text-brand-ink'
                     }`}
                   >
                     {link.name}
@@ -131,17 +114,9 @@ export const Navbar: React.FC = () => {
                 ))}
               </div>
               <div className="border-t border-brand-olive/10 pt-6">
-                <p className="text-sm font-bold text-brand-ink/40 uppercase tracking-widest mb-3">
-                  Heritage Craft Media
-                </p>
-                <p className="text-sm text-brand-ink/60 leading-relaxed">
-                  Helping craft businesses grow through media, education, and digital strategy.
-                </p>
-                <Link
-                  to="/get-started"
-                  onClick={() => setIsOpen(false)}
-                  className="inline-block mt-4 px-6 py-3 bg-brand-olive text-white rounded-full font-bold text-sm"
-                >
+                <p className="text-sm font-bold text-brand-ink/40 uppercase tracking-widest mb-3">Heritage Craft Media</p>
+                <p className="text-sm text-brand-ink/60 leading-relaxed">Helping craft businesses grow through media, education, and digital strategy.</p>
+                <Link to="/get-started" onClick={() => setIsOpen(false)} className="inline-block mt-4 px-6 py-3 bg-brand-olive text-white rounded-full font-bold text-sm">
                   Get Started
                 </Link>
               </div>
