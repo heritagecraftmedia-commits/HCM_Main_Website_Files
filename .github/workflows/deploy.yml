@@ -1,10 +1,12 @@
 name: Build & Deploy
 
-# Runs on every push to main, and can be started by hand from the Actions tab.
-# Only pushes to main actually deploy — a manual run on a feature branch just
-# proves the build is sound.
+# Pull requests and manual runs build only. Only a push to main deploys, so a
+# PR proves the build is sound without touching production.
 on:
   push:
+    branches:
+      - main
+  pull_request:
     branches:
       - main
   workflow_dispatch:
