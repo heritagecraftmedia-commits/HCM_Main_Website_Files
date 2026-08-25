@@ -89,6 +89,13 @@ console.log(`UK today : ${today}  (week ${week.start} -> ${week.end})\n`);
 
 // ── Stage 1: data layer ──────────────────────────────────────────────────────
 console.log('Stage 1 — data layer (real Supabase)');
+if (identity.startsWith('anon')) {
+  console.log(
+    '  NOTE: running anonymously. daily_tasks, approvals and learning_log are\n' +
+    '        restricted to authenticated users, so zero rows here is CORRECT.\n' +
+    '        Set HCM_TEST_EMAIL / HCM_TEST_PASSWORD to see the real counts.'
+  );
+}
 
 const todayTasks = await executeTool(supabase, 'get_tasks', { start_date: today });
 checkData('get_tasks(today) executes without error', todayTasks, `${todayTasks.count} task(s)`);
