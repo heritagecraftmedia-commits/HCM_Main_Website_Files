@@ -50,7 +50,15 @@ function weekDates(): Date[] {
     return d;
   });
 }
-const toISO = (d: Date) => d.toISOString().split('T')[0];
+// Scott is in the UK. toISOString() is UTC, so between late March and late
+// October (BST) anything after 23:00 local rolls the date forward a day and
+// "today" silently becomes tomorrow. Format in Europe/London instead —
+// en-CA gives YYYY-MM-DD, and Intl handles the GMT/BST switch.
+const UK_TZ = 'Europe/London';
+const UK_ISO = new Intl.DateTimeFormat('en-CA', {
+  timeZone: UK_TZ, year: 'numeric', month: '2-digit', day: '2-digit',
+});
+const toISO = (d: Date) => UK_ISO.format(d);
 const WEEK_LABELS  = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const PUBLISHING   = ['YouTube', 'TikTok', 'Instagram', 'Pinterest', 'LinkedIn', 'Ko-fi', 'Facebook Live'];
 const MILESTONES   = ['Monthly backup', 'Budget review', 'Plan next month', 'Retainer reminders'];
@@ -61,20 +69,49 @@ const QUICK_PROMPTS = [
   'Show me this week ahead',
   'I am having a fog day ❤️',
 ];
-async function callClaude(prompt: string): Promise<string> {
+/**
+ * Ask the assistant.
+ *
+ * Sends the signed-in user's Supabase access token so the server can verify
+ * who is asking and read that user's data under their own RLS context. Without
+ * it the assistant has no identity and genuinely cannot see anything — which is
+ * how it ended up telling Scott to paste his own task list.
+ *
+ * History is passed through so follow-up questions keep their context.
+ */
+async function callClaude(history: ChatMessage[]): Promise<string> {
   try {
-    const response = await fetch('/api/generate-summary', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt }),
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      return `Claude error: ${data.error || 'Unknown error'}`;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      return 'You appear to be signed out. Please sign in again so I can look at your tasks.';
     }
-    return data.text ?? 'No response.';
+
+    const response = await fetch('/api/assistant', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        messages: history.map(m => ({
+          role: m.role === 'claude' ? 'assistant' : 'user',
+          content: m.text,
+        })),
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Surface the real failure. An integration problem must never come back
+      // dressed up as "I don't have access to your data".
+      return `There's a problem on my side, so I couldn't check your data: ${
+        data.error || `the assistant returned ${response.status}`
+      }`;
+    }
+    return data.text || 'No response.';
   } catch (err) {
-    return `Could not reach Claude: ${err.message}`;
+    return `I couldn't reach the assistant just now: ${(err as Error).message}`;
   }
 }
 // ─── Section 1: Dashboard ─────────────────────────────────────────────────────
@@ -117,7 +154,7 @@ const DashboardSection: React.FC<{ userName: string; pendingCount: number }> = (
   const sendChat = async () => {
     if (!chatInput.trim() || chatLoading) return;
     setChatLoading(true);
-    const response = await callClaude(chatInput);
+    const response = await callClaude([{ role: 'user', text: chatInput }]);
     setChatResponse(response);
     setChatLoading(false);
   };
@@ -240,7 +277,9 @@ const ApprovalsSection: React.FC<{ onCountChange: (n: number) => void }> = ({ on
   useEffect(() => {
     supabase
       .from('approvals')
-      .select('id, title, description, status, created_at')
+      // The column is `summary`; selecting a non-existent `description` made
+      // PostgREST reject the whole query, so Approvals always rendered empty.
+      .select('id, title, description:summary, status, created_at')
       .order('created_at', { ascending: false })
       .then(({ data }) => {
         const list = data ?? [];
@@ -332,10 +371,11 @@ const AskClaudeSection: React.FC = () => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const send = async (text: string) => {
     if (!text.trim() || loading) return;
-    setMessages(prev => [...prev, { role: 'user', text }]);
+    const history: ChatMessage[] = [...messages, { role: 'user', text }];
+    setMessages(history);
     setInput('');
     setLoading(true);
-    const response = await callClaude(text);
+    const response = await callClaude(history);
     setMessages(prev => [...prev, { role: 'claude', text: response }]);
     setLoading(false);
   };

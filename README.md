@@ -18,8 +18,11 @@ Heritage Craft Media (HCM) is a digital media and education platform supporting 
 
 ## Repo structure
 
-- `heritagecraftmedia-react/` — main React application
-- `api/` — Vercel serverless API routes
+- `src/` — main React application (public site + dashboards)
+- `api/` — Vercel serverless API routes (`assistant`, `generate-summary`)
+- `api/_lib/` — shared server code; not routed as endpoints
+- `scripts/` — integration tests
+- `docs/ASSISTANT.md` — how the Ask Claude assistant is wired
 - `vercel.json` — Vercel deployment config (must stay at repo root)
 
 ## Getting started

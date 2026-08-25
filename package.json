@@ -8,11 +8,11 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test:assistant": "node scripts/test-assistant.mjs"
   },
   "dependencies": {
     "@google-cloud/local-auth": "^3.0.1",
-    "@google/genai": "^1.29.0",
     "@hookform/resolvers": "^4.1.2",
     "@radix-ui/react-accordion": "^1.2.3",
     "@radix-ui/react-alert-dialog": "^1.1.6",
