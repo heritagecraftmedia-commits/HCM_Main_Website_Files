@@ -26,6 +26,7 @@ import Academy from './pages/Academy';
 import Services from './pages/Services';
 import FreeResources from './pages/FreeResources';
 import GetStarted from './pages/GetStarted';
+import Merchandise from './pages/Merchandise';
 
 const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
@@ -59,6 +60,7 @@ export default function App() {
               <Route path="/resources" element={<PageWrapper><Resources /></PageWrapper>} />
               <Route path="/free-resources" element={<PageWrapper><FreeResources /></PageWrapper>} />
               <Route path="/get-started" element={<PageWrapper><GetStarted /></PageWrapper>} />
+              <Route path="/merchandise" element={<PageWrapper><Merchandise /></PageWrapper>} />
               <Route path="/members" element={<ProtectedRoute><PageWrapper><Members /></PageWrapper></ProtectedRoute>} />
               <Route path="/feedback" element={<PageWrapper><Feedback /></PageWrapper>} />
               <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
