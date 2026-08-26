@@ -7,11 +7,12 @@
 //     Supabase projects. It is not part of Heritage Craft Media and must not
 //     appear in HCM source. (The client's name is deliberately not written
 //     here: it is one of the repo's contamination-scan terms.)
-//   - The hardcoded "priority projects" list (CraftVideo AI / ScamGuard /
-//     Rachael King). Those mirrored the March 2026 seed rows in daily_tasks
-//     and were stale — the assistant reads real tasks from the database now.
-//   - The brand colour list (#8B1A1A / #2C2C2C / #F5F0E8), which matched
-//     nothing in the codebase. The real tokens are in src/index.css.
+//   - A hardcoded "priority projects" list naming three client/product
+//     projects. It mirrored the March 2026 seed rows in daily_tasks and was
+//     five months stale — the assistant reads real tasks from the database
+//     now, so no project list belongs in the prompt.
+//   - A brand colour list that matched nothing in the codebase. The real
+//     tokens live in src/index.css.
 //
 // RETAINED: the behavioural rules, which are the valuable part.
 

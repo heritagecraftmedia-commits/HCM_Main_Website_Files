@@ -84,14 +84,19 @@ function byPriority(a: TaskRow, b: TaskRow): number {
 
 /**
  * Tasks due today, plus undated tasks that are still outstanding.
- * Sorted urgent -> high -> medium -> low.
+ * Completed tasks are excluded in both cases.
+ * Sorted urgent -> high -> medium -> low, then soonest due date, then title.
+ *
+ * status is the canonical state, so the exclusion filters on status rather
+ * than the legacy `done` boolean.
  */
 export async function getTodayTasks(db: SupabaseClient) {
   const today = todayISO();
   const { data, error } = await db
     .from('tasks')
     .select(TASK_COLUMNS)
-    .or(`due_date.eq.${today},and(due_date.is.null,status.neq.done)`);
+    .neq('status', 'done')
+    .or(`due_date.eq.${today},due_date.is.null`);
 
   if (error) return { available: false as const, reason: error.message, tasks: [] as TaskRow[] };
   const tasks = (data ?? []).map(toTask).sort(byPriority);
@@ -113,12 +118,14 @@ export async function getWeekAhead(db: SupabaseClient) {
 
   const tasks = error ? [] : (data ?? []).map(toTask).sort(byPriority);
 
+  const calendar = getCalendar();
   return {
     range: { from, to },
     tasks_available: !error,
     tasks_error: error?.message ?? null,
     tasks,
-    calendar: getCalendar(),
+    calendar_available: calendar.available,
+    calendar,
   };
 }
 
@@ -238,4 +245,44 @@ export async function resolveFocusTask(db: SupabaseClient, taskId: unknown): Pro
   const { data, error } = await db.from('tasks').select(TASK_COLUMNS).eq('id', taskId).maybeSingle();
   if (error || !data) return null;
   return toTask(data);
+}
+
+// ── Task state semantics (Step 3) ────────────────────────────────────────────
+//
+// `status` is the canonical task state. The legacy `done` boolean stays in the
+// table and must be kept in step with it, because the existing dashboard UI
+// still reads and writes `done`.
+//
+//   status === 'done'  ->  done = true
+//   status !== 'done'  ->  done = false
+//
+// There is deliberately no database trigger for this: the synchronisation
+// lives here, in the application write layer, as agreed.
+//
+// NO WRITE FUNCTION EXISTS YET — writes are Phase 5. This helper defines the
+// invariant now so that every future write can spread it into a single update
+// and the two columns cannot drift apart.
+
+export type TaskStatus = 'todo' | 'in_progress' | 'done' | 'blocked';
+
+export const TASK_STATUSES: readonly TaskStatus[] = ['todo', 'in_progress', 'done', 'blocked'];
+
+export function isTaskStatus(value: unknown): value is TaskStatus {
+  return typeof value === 'string' && (TASK_STATUSES as readonly string[]).includes(value);
+}
+
+/**
+ * The complete set of columns a task-state write must set, so `status` and
+ * `done` can never disagree.
+ *
+ * Completing a task sets completed_at; reopening or rescheduling clears it.
+ */
+export function taskStateFields(status: TaskStatus, now = new Date()) {
+  const finished = status === 'done';
+  return {
+    status,
+    done: finished,
+    completed_at: finished ? now.toISOString() : null,
+    updated_at: now.toISOString(),
+  };
 }

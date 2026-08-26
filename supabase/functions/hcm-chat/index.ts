@@ -30,6 +30,7 @@ import {
   resolveFocusTask,
   todayISO,
 } from './data.ts';
+import type { TaskRow } from './data.ts';
 
 const MODEL = 'claude-opus-5';
 const MAX_TOKENS = 8000;
@@ -119,7 +120,23 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    const focus = await resolveFocusTask(db, body?.focus_task_id);
+    // Step 6 — resolving what "that" / "the first one" refers to.
+    //
+    // The browser may echo back an opaque focus task id, never a task object.
+    // The id is re-read from the database here, under the caller's own RLS.
+    // Since tasks is now owner-only, a non-owner cannot resolve any id at all,
+    // so a tampered client cannot smuggle in another account's task or a
+    // fabricated one.
+    //
+    // If no id was supplied, the top task from today's list becomes the
+    // referent, which is what "do the first one" means straight after
+    // "what should I do first?". No conversation table is needed: the client
+    // round-trips one id and the server re-derives everything else.
+    let focus: TaskRow | null = await resolveFocusTask(db, body?.focus_task_id);
+    if (!focus) {
+      const todays = snapshot.today_tasks as { tasks?: TaskRow[] } | undefined;
+      focus = todays?.tasks?.[0] ?? null;
+    }
     if (focus) snapshot.focus_task = focus;
 
     // The trusted data is delivered as a mid-conversation system message. It
