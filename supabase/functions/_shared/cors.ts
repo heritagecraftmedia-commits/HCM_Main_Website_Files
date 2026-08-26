@@ -12,6 +12,12 @@
 const ALLOWED_ORIGINS = [
   'https://heritagecraftmedia.com',
   'https://www.heritagecraftmedia.com',
+  // TEMPORARY - preview verification only, 26 Aug 2026.
+  // Added so the hcm-dashboard-assistant preview build can exercise the
+  // assistant before anything reaches production. Exact origin, no wildcard,
+  // production origins unchanged.
+  // REMOVE THIS LINE AND REDEPLOY hcm-chat once preview testing is signed off.
+  'https://hcm-website-git-hcm-dashboard-assistant-heritage-craft-media.vercel.app',
 ];
 
 const BASE_HEADERS: Record<string, string> = {
