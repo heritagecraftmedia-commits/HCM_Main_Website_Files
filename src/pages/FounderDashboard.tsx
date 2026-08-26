@@ -61,20 +61,56 @@ const QUICK_PROMPTS = [
   'Show me this week ahead',
   'I am having a fog day ❤️',
 ];
-async function callClaude(prompt: string): Promise<string> {
+// Talks to the authenticated hcm-chat Edge Function, which verifies the signed-in
+// user is the HCM owner and reads tasks/content from the database server-side.
+// The browser deliberately sends no task or approval data — only the message,
+// prior turns as text, and an opaque task id the server re-reads before using.
+//
+// The legacy /api/generate-summary route is left in place but is no longer
+// called from here: it had no authentication and never saw HCM data.
+interface AssistantReply {
+  text: string;
+  focusTaskId: string | null;
+}
+async function askAssistant(
+  message: string,
+  history: ChatMessage[] = [],
+  focusTaskId: string | null = null,
+): Promise<AssistantReply> {
+  const fail = (text: string): AssistantReply => ({ text, focusTaskId });
   try {
-    const response = await fetch('/api/generate-summary', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt }),
-    });
-    const data = await response.json();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return fail('You are signed out. Sign in again and I will pick this back up.');
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/hcm-chat`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          message,
+          messages: history.map(m => ({
+            role: m.role === 'claude' ? 'assistant' : 'user',
+            content: m.text,
+          })),
+          focus_task_id: focusTaskId,
+        }),
+      },
+    );
+
+    const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      return `Claude error: ${data.error || 'Unknown error'}`;
+      if (response.status === 401) return fail('You are signed out. Sign in again and I will pick this back up.');
+      if (response.status === 403) return fail('This assistant is for the HCM owner account only.');
+      if (response.status === 503) return fail('The assistant is not set up on the server yet.');
+      return fail(data.error || 'Something went wrong. Please try again.');
     }
-    return data.text ?? 'No response.';
-  } catch (err) {
-    return `Could not reach Claude: ${err.message}`;
+    return { text: data.reply ?? 'No response came back.', focusTaskId: data.focus_task_id ?? null };
+  } catch {
+    return fail('Could not reach the assistant. Check your connection and try again.');
   }
 }
 // ─── Section 1: Dashboard ─────────────────────────────────────────────────────
@@ -117,8 +153,8 @@ const DashboardSection: React.FC<{ userName: string; pendingCount: number }> = (
   const sendChat = async () => {
     if (!chatInput.trim() || chatLoading) return;
     setChatLoading(true);
-    const response = await callClaude(chatInput);
-    setChatResponse(response);
+    const { text } = await askAssistant(chatInput);
+    setChatResponse(text);
     setChatLoading(false);
   };
   const done = tasks.filter(t => t.done).length;
@@ -329,14 +365,20 @@ const AskClaudeSection: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  // The task the conversation is currently about, so a follow-up like
+  // "do the first one" has something to refer to. Only the id is held here —
+  // the server re-reads the task itself on every turn.
+  const [focusTaskId, setFocusTaskId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const send = async (text: string) => {
     if (!text.trim() || loading) return;
+    const history = messages;
     setMessages(prev => [...prev, { role: 'user', text }]);
     setInput('');
     setLoading(true);
-    const response = await callClaude(text);
-    setMessages(prev => [...prev, { role: 'claude', text: response }]);
+    const reply = await askAssistant(text, history, focusTaskId);
+    setFocusTaskId(reply.focusTaskId);
+    setMessages(prev => [...prev, { role: 'claude', text: reply.text }]);
     setLoading(false);
   };
   useEffect(() => {
