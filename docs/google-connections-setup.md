@@ -94,28 +94,30 @@ Supabase Dashboard → **Project Settings → Edge Functions → Secrets**, on t
 `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` are injected
 by Supabase automatically. Do not add them by hand.
 
-## Step 5 — Run the migration
+## Step 5 — Run the migrations
 
-Run `supabase/migrations/20260826120000_google_connections.sql` against the
-`heritage-craft-media` project (SQL Editor, or `supabase db push`).
+Run these two, in order, against the `heritage-craft-media` project (SQL Editor,
+or `supabase db push`):
 
-It creates two tables and two functions. It creates no policies on the token
-tables **on purpose** — see the security note below. It drops nothing and
-alters no existing table.
+1. `supabase/migrations/20260826120000_google_connections.sql`
+2. `supabase/migrations/20260826130000_assistant_actions.sql`
 
-## Step 6 — Deploy the two functions
+The first creates the token tables and two functions, with no policies on the
+token tables **on purpose** — see the security note below. The second creates
+the approval queue. Neither drops anything or alters an existing table.
+
+## Step 6 — Deploy the functions
 
 ```bash
 supabase functions deploy google-oauth-start
 supabase functions deploy google-oauth-callback --no-verify-jwt
-```
-
-The `--no-verify-jwt` on the callback is required and is explained below. Also
-redeploy `hcm-chat`, since it now reads the connections:
-
-```bash
+supabase functions deploy assistant-actions
 supabase functions deploy hcm-chat
 ```
+
+The `--no-verify-jwt` on the callback is required and is explained below. Every
+other function keeps JWT verification on. `hcm-chat` needs redeploying because
+it now reads the connections and can propose changes.
 
 ## Step 7 — Connect
 
@@ -154,12 +156,26 @@ the single point this codebase can reach Google from and which refuses outright
 to call any Gmail send endpoint. If someone later adds a send call, it throws
 instead of sending.
 
-**Drive writes are not built yet.** You asked that writing to Drive require your
-approval. Rather than ship a write path with no approval gate, this build reads
-and searches Drive only — there is no Drive write code at all. The same goes for
-organising the calendar and saving draft replies into Gmail: the connection and
-the permission are in place, the write layer comes next, behind the approval
-step.
+**How the approval gate works.** You asked that writing to Drive need your
+approval. The assistant cannot perform a Drive or calendar change at all — the
+only thing its `propose_calendar_change` and `propose_drive_change` tools can do
+is insert a `pending` row in `assistant_actions`. Nothing touches Google until
+you press Approve under **Approvals → Waiting for you**, at which point the
+`assistant-actions` function runs it server-side.
+
+The change that runs is the one frozen when it was proposed and read back from
+the database. Your browser sends only an action id and a decision, so nothing
+can be altered between the moment you read the card and the moment it runs. An
+approval is also single-use — the row must still be `pending`, so the same
+approval cannot be replayed to run a change twice.
+
+Nothing is deleted permanently: Drive removals go to the bin (restorable for 30
+days) and calendar events are cancelled rather than scrubbed.
+
+**Drafting email is deliberately not gated.** A draft already sits in Gmail
+waiting for you, so it is its own review step, and sending is impossible. Making
+you approve a draft before it could become a draft would just be a second queue
+in front of the queue Gmail already gives you.
 
 ## If something goes wrong
 

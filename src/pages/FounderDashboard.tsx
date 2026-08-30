@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import GoogleConnections from '../components/GoogleConnections';
+import AssistantActions from '../components/AssistantActions';
 import {
   LayoutDashboard, CheckSquare, Square, Plus, Send,
   ThumbsUp, BrainCircuit, Calendar, CalendarDays,
@@ -306,6 +307,8 @@ const ApprovalsSection: React.FC<{ onCountChange: (n: number) => void }> = ({ on
   return (
     <div className="max-w-2xl space-y-6">
       <h2 className="font-serif text-brand-ink text-xl">Approvals</h2>
+      {/* Drive and calendar changes the assistant has proposed */}
+      <AssistantActions />
       {pending.length === 0 ? (
         <div className="bg-white rounded-2xl border border-brand-olive/10 shadow-sm p-10 text-center">
           <p className="text-brand-ink/50 text-sm">All clear — nothing waiting for approval</p>

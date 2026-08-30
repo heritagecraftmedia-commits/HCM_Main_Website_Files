@@ -21,6 +21,7 @@ import Anthropic from 'npm:@anthropic-ai/sdk@0.120.0';
 import { preflight, json } from '../_shared/cors.ts';
 import { HCM_SYSTEM } from './prompt.ts';
 import { adminClient } from '../_shared/google.ts';
+import { TOOLS, runTool } from './tools.ts';
 import {
   getTodayTasks,
   getWeekAhead,
@@ -157,20 +158,57 @@ Deno.serve(async (req: Request) => {
       JSON.stringify(snapshot);
 
     const anthropic = new Anthropic({ apiKey });
-    const response = await anthropic.messages.create({
+
+    // The mid-conversation system turn is model-gated (supported on
+    // claude-opus-5). Cast because the SDK's MessageParam union may not yet
+    // name the 'system' role.
+    const convo = [
+      ...history,
+      { role: 'user', content: message },
+      { role: 'system', content: dataMessage },
+    ] as unknown as Anthropic.MessageParam[];
+
+    const ask = () => anthropic.messages.create({
       model: MODEL,
       max_tokens: MAX_TOKENS,
       output_config: { effort: 'low' },
       system: HCM_SYSTEM,
-      // The mid-conversation system turn is model-gated (supported on
-      // claude-opus-5). Cast because the SDK's MessageParam union may not yet
-      // name the 'system' role.
-      messages: [
-        ...history,
-        { role: 'user', content: message },
-        { role: 'system', content: dataMessage },
-      ] as unknown as Anthropic.MessageParam[],
+      tools: TOOLS as unknown as Anthropic.Tool[],
+      messages: convo,
     });
+
+    let response = await ask();
+
+    // Tool loop. Only writes are tools, and of those only draft_email acts —
+    // the propose_* tools can do nothing but queue a card for Scott. The bound
+    // is a safety net against a model that keeps calling tools forever; four
+    // rounds is far more than any real request here needs.
+    for (let round = 0; round < 4 && response.stop_reason === 'tool_use'; round++) {
+      const calls = response.content.filter(
+        (b): b is Anthropic.ToolUseBlock => b.type === 'tool_use',
+      );
+      if (calls.length === 0) break;
+
+      convo.push({ role: 'assistant', content: response.content });
+
+      // Claude may call several tools in one turn. Every result must come back
+      // in a SINGLE user message, or it learns to stop batching them.
+      const results = await Promise.all(
+        calls.map(async (call) => ({
+          type: 'tool_result' as const,
+          tool_use_id: call.id,
+          content: await runTool(
+            admin,
+            user.id,
+            call.name,
+            (call.input ?? {}) as Record<string, unknown>,
+          ),
+        })),
+      );
+
+      convo.push({ role: 'user', content: results } as unknown as Anthropic.MessageParam);
+      response = await ask();
+    }
 
     if (response.stop_reason === 'refusal') {
       return json(req, { reply: "I can't help with that one. Try asking a different way." });
