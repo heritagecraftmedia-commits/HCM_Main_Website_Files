@@ -1,3 +1,22 @@
+// DEPRECATED — legacy assistant path.
+//
+// This route is still the live assistant endpoint used by the Founder
+// Dashboard, so it stays in place and keeps working. It is NOT the intended
+// destination for new functionality.
+//
+// The replacement is the authenticated Supabase Edge Function at
+// supabase/functions/hcm-chat/, which verifies the caller is the HCM owner,
+// reads task and content data server-side under RLS, and keeps the Anthropic
+// credential in the function environment.
+//
+// This file has two properties that are why it is being replaced:
+//   - no authentication: anyone who can reach the URL can spend the API key.
+//   - no data access: it forwards a bare prompt, so answers about tasks,
+//     content or the calendar are generated without ever seeing HCM data.
+//
+// Do not add features here. Do not delete it until the hcm-chat path has been
+// proven in production.
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
