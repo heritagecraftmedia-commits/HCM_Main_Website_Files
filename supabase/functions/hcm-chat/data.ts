@@ -17,6 +17,7 @@
 //   pa_tasks    — HCM internal dev tracking. Out of scope entirely.
 
 import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2';
+import { getConnection, googleFetch } from '../_shared/google.ts';
 
 const PRIORITY_RANK: Record<string, number> = {
   urgent: 0,
@@ -107,7 +108,7 @@ export async function getTodayTasks(db: SupabaseClient) {
  * The next seven days: HCM tasks, plus Google Calendar events when genuine
  * read access exists. Calendar is reported unavailable rather than invented.
  */
-export async function getWeekAhead(db: SupabaseClient) {
+export async function getWeekAhead(db: SupabaseClient, admin: SupabaseClient, userId: string) {
   const from = todayISO();
   const to = addDays(from, 6);
   const { data, error } = await db
@@ -118,7 +119,7 @@ export async function getWeekAhead(db: SupabaseClient) {
 
   const tasks = error ? [] : (data ?? []).map(toTask).sort(byPriority);
 
-  const calendar = getCalendar();
+  const calendar = await getCalendar(admin, userId, from, to);
   return {
     range: { from, to },
     tasks_available: !error,
@@ -206,31 +207,235 @@ export async function getOfferings(shop: SupabaseClient | null) {
 
 // ── Google integrations ──────────────────────────────────────────────────────
 //
-// The Phase 1B audit found NO server-side Google credential anywhere in the HCM
-// project: no OAuth/token table for the owner, and api_credentials holds only
-// bunny / hubspot / mailchimp / make / notion / stripe rows, all with empty
-// key and secret. The Gmail and Calendar connections referenced in planning are
-// Claude-side MCP connectors, which an Edge Function cannot use.
+// These now read Scott's real Google account, using the refresh token stored by
+// the OAuth callback. Each one degrades to a clean "not connected" object when
+// no connection exists — the assistant is never allowed to invent an email, an
+// event or a file to fill a gap.
 //
-// These therefore report unavailable. They must not be made to look connected.
+// Everything reaches Google through googleFetch(), which structurally refuses
+// to call any Gmail send endpoint. Drafting is permitted; delivery is not.
 
-const GOOGLE_UNAVAILABLE =
-  'Google account access is not connected to this assistant on the server yet.';
+const NOT_CONNECTED = (service: string) =>
+  `${service} is not connected to this assistant yet. Connect it from the dashboard.`;
 
-function getCalendar() {
-  return {
-    available: false as const,
-    reason: "Google Calendar isn't currently connected for this assistant.",
-    events: [] as unknown[],
-  };
+/** Decode Gmail's base64url payloads. */
+function decodeBody(data: string): string {
+  try {
+    const b64 = data.replaceAll('-', '+').replaceAll('_', '/');
+    return new TextDecoder().decode(
+      Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)),
+    );
+  } catch {
+    return '';
+  }
 }
 
-export function searchEmail(_query: string) {
-  return { available: false as const, reason: GOOGLE_UNAVAILABLE, threads: [] as unknown[] };
+function header(headers: Array<{ name: string; value: string }> | undefined, name: string): string | null {
+  return headers?.find((h) => h.name.toLowerCase() === name.toLowerCase())?.value ?? null;
 }
 
-export function getEmailContext(_threadId: string) {
-  return { available: false as const, reason: GOOGLE_UNAVAILABLE, thread: null };
+/** Walk a Gmail MIME tree for the best plain-text representation. */
+function extractText(part: Record<string, unknown> | undefined): string {
+  if (!part) return '';
+  const mime = part.mimeType as string | undefined;
+  const body = part.body as { data?: string } | undefined;
+  if (mime === 'text/plain' && body?.data) return decodeBody(body.data);
+  const parts = part.parts as Array<Record<string, unknown>> | undefined;
+  if (parts) {
+    for (const p of parts) {
+      const found = extractText(p);
+      if (found) return found;
+    }
+  }
+  if (body?.data) return decodeBody(body.data);
+  return '';
+}
+
+/**
+ * Search Scott's mail. Read-only.
+ *
+ * Returns light metadata only — sender, subject, date, snippet. Full bodies are
+ * fetched deliberately via getEmailContext() for one thread, so a broad search
+ * never dumps the mailbox into the model's context.
+ */
+export async function searchEmail(admin: SupabaseClient, userId: string, query: string) {
+  const conn = await getConnection(admin, userId, 'gmail');
+  if (!conn) {
+    return { available: false as const, reason: NOT_CONNECTED('Gmail'), threads: [] as unknown[] };
+  }
+
+  try {
+    const listRes = await googleFetch(
+      conn.accessToken,
+      `https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=10&q=${encodeURIComponent(query)}`,
+    );
+    if (!listRes.ok) {
+      return { available: false as const, reason: 'Gmail could not be reached.', threads: [] };
+    }
+
+    const list = await listRes.json();
+    const ids: Array<{ id: string; threadId: string }> = list.messages ?? [];
+
+    const threads = await Promise.all(
+      ids.slice(0, 10).map(async (m) => {
+        const r = await googleFetch(
+          conn.accessToken,
+          `https://gmail.googleapis.com/gmail/v1/users/me/messages/${m.id}` +
+            '?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date',
+        );
+        if (!r.ok) return null;
+        const msg = await r.json();
+        const hs = msg.payload?.headers;
+        return {
+          thread_id: msg.threadId,
+          message_id: msg.id,
+          from: header(hs, 'From'),
+          subject: header(hs, 'Subject'),
+          date: header(hs, 'Date'),
+          snippet: msg.snippet ?? null,
+          unread: (msg.labelIds ?? []).includes('UNREAD'),
+        };
+      }),
+    );
+
+    return {
+      available: true as const,
+      account: conn.googleEmail,
+      query,
+      threads: threads.filter(Boolean),
+    };
+  } catch {
+    return { available: false as const, reason: 'Gmail could not be reached.', threads: [] };
+  }
+}
+
+/** Full text of one thread, for drafting a reply against what was actually said. */
+export async function getEmailContext(admin: SupabaseClient, userId: string, threadId: string) {
+  const conn = await getConnection(admin, userId, 'gmail');
+  if (!conn) {
+    return { available: false as const, reason: NOT_CONNECTED('Gmail'), thread: null };
+  }
+
+  try {
+    const res = await googleFetch(
+      conn.accessToken,
+      `https://gmail.googleapis.com/gmail/v1/users/me/threads/${encodeURIComponent(threadId)}?format=full`,
+    );
+    if (!res.ok) {
+      return { available: false as const, reason: 'That conversation could not be read.', thread: null };
+    }
+
+    const data = await res.json();
+    const messages = (data.messages ?? []).map((m: Record<string, unknown>) => {
+      const payload = m.payload as Record<string, unknown> | undefined;
+      const hs = payload?.headers as Array<{ name: string; value: string }> | undefined;
+      return {
+        message_id: m.id,
+        from: header(hs, 'From'),
+        to: header(hs, 'To'),
+        subject: header(hs, 'Subject'),
+        date: header(hs, 'Date'),
+        // Trimmed: enough to reply to, not the entire quoted history.
+        body: extractText(payload).slice(0, 4000),
+      };
+    });
+
+    return { available: true as const, thread: { thread_id: data.id, messages } };
+  } catch {
+    return { available: false as const, reason: 'That conversation could not be read.', thread: null };
+  }
+}
+
+/** The next seven days from Google Calendar. */
+async function getCalendar(admin: SupabaseClient, userId: string, from: string, to: string) {
+  const conn = await getConnection(admin, userId, 'calendar');
+  if (!conn) {
+    return { available: false as const, reason: NOT_CONNECTED('Google Calendar'), events: [] as unknown[] };
+  }
+
+  try {
+    const params = new URLSearchParams({
+      timeMin: `${from}T00:00:00Z`,
+      timeMax: `${to}T23:59:59Z`,
+      singleEvents: 'true',
+      orderBy: 'startTime',
+      maxResults: '50',
+    });
+    const res = await googleFetch(
+      conn.accessToken,
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`,
+    );
+    if (!res.ok) {
+      return { available: false as const, reason: 'The calendar could not be reached.', events: [] };
+    }
+
+    const data = await res.json();
+    const events = (data.items ?? []).map((e: Record<string, unknown>) => {
+      const start = e.start as { dateTime?: string; date?: string } | undefined;
+      const end = e.end as { dateTime?: string; date?: string } | undefined;
+      return {
+        event_id: e.id,
+        title: e.summary ?? '(no title)',
+        start: start?.dateTime ?? start?.date ?? null,
+        end: end?.dateTime ?? end?.date ?? null,
+        all_day: Boolean(start?.date && !start?.dateTime),
+        location: e.location ?? null,
+        status: e.status ?? null,
+      };
+    });
+
+    return { available: true as const, account: conn.googleEmail, events };
+  } catch {
+    return { available: false as const, reason: 'The calendar could not be reached.', events: [] };
+  }
+}
+
+/**
+ * Search Drive, including shared drives.
+ *
+ * Read-only here by construction — this build has no Drive write path at all.
+ * Scott's rule is that any Drive write needs his approval, so writes wait until
+ * the approval gate exists rather than shipping ungated.
+ */
+export async function searchDrive(admin: SupabaseClient, userId: string, query: string) {
+  const conn = await getConnection(admin, userId, 'drive');
+  if (!conn) {
+    return { available: false as const, reason: NOT_CONNECTED('Google Drive'), files: [] as unknown[] };
+  }
+
+  try {
+    // Escape single quotes: they terminate the Drive query string literal.
+    const safe = query.replaceAll("'", "\\'");
+    const params = new URLSearchParams({
+      q: `name contains '${safe}' and trashed = false`,
+      fields: 'files(id,name,mimeType,modifiedTime,webViewLink,driveId)',
+      pageSize: '15',
+      // Shared drives, not just My Drive.
+      includeItemsFromAllDrives: 'true',
+      supportsAllDrives: 'true',
+      corpora: 'allDrives',
+    });
+    const res = await googleFetch(
+      conn.accessToken,
+      `https://www.googleapis.com/drive/v3/files?${params}`,
+    );
+    if (!res.ok) {
+      return { available: false as const, reason: 'Drive could not be reached.', files: [] };
+    }
+
+    const data = await res.json();
+    const files = (data.files ?? []).map((f: Record<string, unknown>) => ({
+      file_id: f.id,
+      name: f.name,
+      type: f.mimeType,
+      modified: f.modifiedTime,
+      link: f.webViewLink,
+    }));
+
+    return { available: true as const, account: conn.googleEmail, query, files };
+  } catch {
+    return { available: false as const, reason: 'Drive could not be reached.', files: [] };
+  }
 }
 
 /**

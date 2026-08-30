@@ -20,6 +20,7 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 import Anthropic from 'npm:@anthropic-ai/sdk@0.120.0';
 import { preflight, json } from '../_shared/cors.ts';
 import { HCM_SYSTEM } from './prompt.ts';
+import { adminClient } from '../_shared/google.ts';
 import {
   getTodayTasks,
   getWeekAhead,
@@ -27,6 +28,7 @@ import {
   getOfferings,
   searchEmail,
   getEmailContext,
+  searchDrive,
   resolveFocusTask,
   todayISO,
 } from './data.ts';
@@ -42,8 +44,9 @@ function planReads(message: string) {
   const email = /email|enquiry|inquiry|reply|respond|message from/.test(m);
   const content = /content|post|social|instagram|youtube|tiktok|linkedin|pinterest|publish/.test(m);
   const week = /week ahead|this week|coming week|next 7|diary|schedule|calendar/.test(m);
+  const drive = /drive|file|document|folder|spreadsheet|doc\b|pdf|attachment/.test(m);
   const tasks = fog || week || /task|to ?do|today|priority|first|next|stuck|what should i/.test(m);
-  return { fog, email, content, week, tasks: tasks || (!email && !content && !week) };
+  return { fog, email, content, week, drive, tasks: tasks || (!email && !content && !week && !drive) };
 }
 
 Deno.serve(async (req: Request) => {
@@ -100,11 +103,16 @@ Deno.serve(async (req: Request) => {
           .map((m: Record<string, unknown>) => ({ role: m.role as 'user' | 'assistant', content: m.content as string }))
       : [];
 
+    // Service-role client, used ONLY to read Google refresh tokens, which the
+    // owner's own JWT deliberately cannot reach. Every Google read below is
+    // still scoped to this authenticated user's id.
+    const admin = adminClient();
+
     const plan = planReads(message);
     const snapshot: Record<string, unknown> = { today: todayISO(), fog_day: plan.fog };
 
     if (plan.tasks) snapshot.today_tasks = await getTodayTasks(db);
-    if (plan.week) snapshot.week_ahead = await getWeekAhead(db);
+    if (plan.week) snapshot.week_ahead = await getWeekAhead(db, admin, user.id);
     if (plan.content) {
       snapshot.content_plan = await getContentPlan(db);
       const shopUrl = Deno.env.get('SHOP_SUPABASE_URL');
@@ -114,11 +122,12 @@ Deno.serve(async (req: Request) => {
       );
     }
     if (plan.email) {
-      snapshot.email_search = searchEmail(message);
+      snapshot.email_search = await searchEmail(admin, user.id, message);
       if (typeof body?.thread_id === 'string') {
-        snapshot.email_context = getEmailContext(body.thread_id);
+        snapshot.email_context = await getEmailContext(admin, user.id, body.thread_id);
       }
     }
+    if (plan.drive) snapshot.drive_files = await searchDrive(admin, user.id, message);
 
     // Step 6 — resolving what "that" / "the first one" refers to.
     //

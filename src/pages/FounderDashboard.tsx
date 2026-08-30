@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import GoogleConnections from '../components/GoogleConnections';
 import {
   LayoutDashboard, CheckSquare, Square, Plus, Send,
   ThumbsUp, BrainCircuit, Calendar, CalendarDays,
@@ -726,6 +727,8 @@ const SetupSection: React.FC = () => {
   return (
     <div className="max-w-xl space-y-6">
       <h2 className="font-serif text-brand-ink text-xl">Setup</h2>
+      {/* Google accounts the assistant may use */}
+      <GoogleConnections />
       {/* API key input */}
       <div className="bg-white rounded-2xl border border-brand-olive/10 shadow-sm p-6">
         <div className="flex items-center gap-2 mb-4">
